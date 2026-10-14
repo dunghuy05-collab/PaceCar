@@ -22,7 +22,6 @@ import {
   Fuel,
   Gauge,
   Heart,
-  KeyRound,
   MapPin,
   Search,
   SlidersHorizontal,
@@ -37,6 +36,8 @@ import {
   UserPlus,
   Wallet,
 } from "lucide-react";
+import LogoMark from "./components/LogoMark";
+import FeaturedCarCard from "./components/FeaturedCarCard";
 import { api, date, dateTime, money } from "./services/api";
 import DriftScene from "./components/DriftScene";
 import {
@@ -148,8 +149,26 @@ export function Landing() {
     return () =>
       document.removeEventListener("visibilitychange", updateVisibility);
   }, []);
-  const { data: cars } = useFetch("/cars");
+  const { data: cars, reload } = useFetch("/cars");
   const { data: promotions } = useFetch("/promotions");
+  const nav = useNavigate(),
+    toast = useToast(),
+    { user } = useAuth();
+  async function favorite(car) {
+    if (!user) {
+      nav("/login?next=%2F");
+      return;
+    }
+    try {
+      await api(`/favorites/${car.id}`, {
+        method: car.favorite ? "DELETE" : "POST",
+      });
+      toast(car.favorite ? "Đã bỏ khỏi yêu thích" : "Đã lưu xe yêu thích");
+      reload();
+    } catch (e) {
+      toast(e.message);
+    }
+  }
   const ratedCars =
     cars?.filter((car) => car.reviewCount > 0 && Number.isFinite(Number(car.rating))) ||
     [];
@@ -159,230 +178,299 @@ export function Landing() {
         ratedCars.length
       ).toFixed(1)
     : "—";
-  const benefits = [
+  const eyebrow =
+    "font-display text-base font-extrabold uppercase leading-[19.5px] tracking-[0.52px] text-pace-blue";
+  const h2 =
+    "font-display text-[28px] font-extrabold uppercase leading-[30px] tracking-[-0.8936px] text-pace-ink sm:text-[35.744px] sm:leading-[33.957px]";
+  const privileges = [
     [
-      ShieldCheck,
-      "Giá minh bạch",
-      "Mọi chi phí được hiển thị trước khi đặt xe.",
+      FileSignature,
+      "Hợp đồng giữa hai bên",
+      "Chủ xe cho thuê trực tiếp, người thuê chịu trách nhiệm theo hợp đồng đã ký.",
     ],
     [
-      CheckCircle2,
-      "Xe & chủ xe xác thực",
-      "Hồ sơ và giấy tờ được đối soát rõ ràng.",
-    ],
-    [FileSignature, "Hợp đồng số", "Điều khoản rõ ràng, ký kết thuận tiện."],
-    [
-      Gauge,
-      "GPS & cảnh báo rủi ro",
-      "Theo dõi hành trình và phát hiện bất thường.",
+      Wallet,
+      "Phí nền tảng minh bạch",
+      "Người thuê chỉ trả một lần trên báo giá, toàn bộ được tách dòng rõ ràng.",
     ],
     [
-      Clock3,
-      "Hỗ trợ tranh chấp 24–72h",
-      "Quy trình dựa trên bằng chứng, công bằng.",
+      Camera,
+      "Hỗ trợ bằng chứng",
+      "PaceCar giữ chức năng hỗ trợ giao nhận và xử lý sự cố.",
     ],
   ];
+  const destinations = [
+    ["Hà Đông", "/images/home-dest-hadong.png"],
+    ["Cầu Giấy", "/images/home-dest-caugiay.png"],
+    ["Mỹ Đình", "/images/home-dest-mydinh.png"],
+    ["Hòa Lạc", "/images/home-dest-hoalac.png"],
+  ];
+  const trust = [
+    [ShieldCheck, "Giá minh bạch", "Mọi chi phí được hiển thị trước khi đặt xe.", "border-b-[0.8px] sm:border-r-[0.8px]"],
+    [CheckCircle2, "Xe & chủ xe xác thực", "Hồ sơ và giấy tờ được đối soát rõ ràng.", "border-b-[0.8px]"],
+    [FileSignature, "Hợp đồng số", "Điều khoản rõ ràng, ký kết thuận tiện.", "border-b-[0.8px] sm:border-b-0 sm:border-r-[0.8px]"],
+    [Gauge, "GPS & cảnh báo rủi ro", "Theo dõi hành trình và phát hiện bất thường.", "border-b-[0.8px] sm:border-b-0"],
+    [Clock3, "Hỗ trợ tranh chấp 24–72h", "Quy trình dựa trên bằng chứng, công bằng.", "sm:border-t-[0.8px] sm:col-span-2"],
+  ];
+  const steps = [
+    "Xác thực hồ sơ",
+    "Tìm xe phù hợp",
+    "Ký hợp đồng số",
+    "Giao nhận bằng ảnh/video",
+    "Hoàn cọc hoặc xử lý",
+  ];
+  const outlineButton =
+    "inline-flex w-fit items-center justify-center rounded-[2px] border-[0.8px] border-white px-2.5 py-[7px] text-[11px] font-extrabold uppercase leading-[16.5px] text-white transition hover:bg-white hover:text-pace-ink";
   return (
-    <>
+    <div className="font-ui">
+      {/* Hero: search panel + headline over the photo (Figma 2:415) */}
       <section
-        className={`relative isolate overflow-hidden bg-gradient-to-br from-[#101832] via-brand-950 to-[#183b8d] py-9 text-white sm:py-14 lg:py-20 ${pageVisible ? "" : "page-motion-inactive"}`}
+        className={`relative isolate overflow-hidden bg-pace-ink text-white ${pageVisible ? "" : "page-motion-inactive"}`}
       >
-        <div className="surface-grid pointer-events-none absolute inset-0" />
-        <div className="landing-orb pointer-events-none absolute -right-40 -top-48 h-[32rem] w-[32rem] rounded-full bg-brand-400/20 blur-3xl" />
-        <div className="container-app relative grid items-center gap-4 sm:gap-7 xl:grid-cols-[minmax(0,1.02fr)_minmax(380px,0.98fr)]">
-          <div className="min-w-0">
-            <span className="motion-enter inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.07] px-3.5 py-2 text-xs font-semibold tracking-wide text-blue-100 sm:text-sm">
-              <Sparkles size={15} className="text-signal-400" /> NỀN TẢNG THUÊ XE AN TOÀN
-            </span>
-            <h1 className="motion-enter motion-delay-1 mt-5 max-w-2xl text-4xl font-extrabold leading-[1.12] tracking-tight sm:mt-6 sm:text-5xl lg:text-6xl">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-cover bg-center"
+          style={{ backgroundImage: "url(/images/home-hero.jpg)" }}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.36) 45%, rgba(0,0,0,0.05) 72%), linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 55%)",
+          }}
+        />
+        <div className="container-app py-6">
+          <SearchBar />
+        </div>
+        <div className="container-app py-8">
+          <div className="px-0 sm:px-5">
+            <p className="font-display text-base font-extrabold uppercase leading-[19.5px] tracking-[0.52px] text-[#8fb6ff]">
+              NỀN TẢNG THUÊ XE AN TOÀN
+            </p>
+            <h1 className="max-w-[630px] pt-[13px] font-display text-[44px] font-extrabold uppercase leading-[42px] tracking-[-2.0329px] sm:text-[58.084px] sm:leading-[49.952px]">
               Thuê xe minh bạch,
               <br />
-              <span className="relative inline-block text-blue-200">
-                an toàn hơn.
-                <span className="absolute -bottom-1 left-0 h-1 w-2/3 rounded-full bg-signal-400/90 sm:-bottom-2 sm:h-1.5" />
-              </span>
+              an toàn hơn.
             </h1>
-            <p className="motion-enter motion-delay-2 mt-5 max-w-xl text-base leading-7 text-blue-100 sm:mt-6 sm:text-lg sm:leading-8">
-              Chọn xe ưng ý với chi phí rõ ràng, hồ sơ xác thực và hợp đồng số —
+            <p className="max-w-[535px] pt-3.5 text-sm leading-[23.8px] text-[#f1f1f2]">
+              Chọn xe ưng ý với chi phí rõ ràng, hồ sơ xác thực và hợp đồng số
               để mỗi hành trình bắt đầu bằng sự an tâm.
             </p>
-            <div className="motion-enter motion-delay-3 mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
-              <Link
-                to="/cars"
-                className="btn-motion inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 font-bold text-brand-700 shadow-lg shadow-black/10 hover:bg-blue-50 hover:shadow-xl"
-              >
-                Tìm xe ngay <ArrowRight size={18} />
-              </Link>
-              <Link
-                to="/register?role=owner"
-                className="btn-motion inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-5 py-3 font-semibold text-white hover:border-white/40 hover:bg-white/10"
-              >
-                Bạn có xe? Đăng cho thuê
-              </Link>
-            </div>
-            <div className="motion-enter motion-delay-4 mt-7 grid max-w-lg grid-cols-3 gap-3 border-t border-white/10 pt-5 text-xs text-blue-100 sm:mt-9 sm:gap-6 sm:pt-6 sm:text-sm">
-              <span>
-                <b className="block text-xl font-extrabold text-white sm:text-2xl">{cars?.length ?? "—"}</b>
-                xe sẵn sàng
-              </span>
-              <span>
-                <b className="block text-xl font-extrabold text-white sm:text-2xl">{averageRating}/5</b>
-                đánh giá trung bình
-              </span>
-              <span>
-                <b className="block text-xl font-extrabold text-white sm:text-2xl">{promotions?.length ?? "—"}</b>
-                ưu đãi hiện có
-              </span>
-            </div>
-          </div>
-          <div className="relative mx-auto w-full max-w-[580px] min-w-0 px-1 pb-1 sm:px-5 xl:px-0">
-            <DriftScene />
-          </div>
-        </div>
-      </section>
-      <div className="motion-enter motion-delay-4 container-app relative z-20 -mt-10">
-        <SearchBar />
-      </div>
-      <section className="container-app pt-16">
-        <div className="text-center">
-          <p className="font-bold text-brand-600">ƯU ĐÃI ĐANG CÓ</p>
-          <h2 className="section-title mt-2">
-            Bắt đầu hành trình với giá tốt hơn
-          </h2>
-        </div>
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
-          {promotions?.map((promo, i) => (
-            <Reveal key={promo.id} delay={i * 90}>
-              <div
-                className={`interactive-card overflow-hidden rounded-2xl p-6 text-white shadow-soft ${i % 2 ? "bg-gradient-to-r from-violet-600 to-indigo-600" : "bg-gradient-to-r from-brand-700 to-cyan-500"}`}
-              >
-                <p className="text-sm font-bold uppercase tracking-wider">
-                  Mã {promo.code}
-                </p>
-                <h3 className="mt-2 text-2xl font-extrabold">{promo.title}</h3>
-                <p className="mt-2 text-sm text-white/80">
-                  {promo.description}
-                </p>
-                <Link
-                  to={`/cars?promoCode=${promo.code}`}
-                  className="mt-5 inline-block rounded-xl bg-white px-4 py-2 text-sm font-bold text-brand-700"
-                >
-                  Khám phá xe
-                </Link>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-      <section className="container-app pt-20">
-        <div className="flex items-end justify-between">
-          <div>
-            <p className="font-bold text-brand-600">ĐIỂM ĐẾN PHỔ BIẾN</p>
-            <h2 className="section-title mt-2">Thuê xe gần bạn</h2>
-          </div>
-        </div>
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            [
-              "Hà Đông",
-              "https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?auto=format&fit=crop&w=600&q=80",
-            ],
-            [
-              "Cầu Giấy",
-              "https://images.unsplash.com/photo-1555921015-5532091f6026?auto=format&fit=crop&w=600&q=80",
-            ],
-            [
-              "Mỹ Đình",
-              "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=600&q=80",
-            ],
-            [
-              "Hòa Lạc",
-              "https://images.unsplash.com/photo-1521993117367-b7f70ccd029d?auto=format&fit=crop&w=600&q=80",
-            ],
-          ].map(([place, img], index) => (
-            <Reveal key={place} delay={index * 70}>
-              <Link
-                to={`/cars?location=${encodeURIComponent(place + ", Hà Nội")}`}
-                className="group relative h-44 overflow-hidden rounded-2xl"
-              >
-                <img
-                  src={img}
-                  alt={`Thuê xe tại ${place}`}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
-                <div className="absolute bottom-4 left-4 text-white">
-                  <b className="text-lg">{place}</b>
-                  <p className="text-xs text-white/70">Khám phá xe khả dụng</p>
+            <div className="flex flex-wrap gap-x-12 gap-y-4 pt-[35px]">
+              {[
+                [cars?.length ?? "—", "xe sẵn sàng"],
+                [`${averageRating}/5`, "đánh giá trung bình"],
+                [promotions?.length ?? "—", "ưu đãi hiện có"],
+              ].map(([value, label]) => (
+                <div key={label}>
+                  <p className="font-display text-[27px] font-bold leading-[40.5px]">
+                    {value}
+                  </p>
+                  <p className="pt-[3px] text-[11px] uppercase leading-[16.5px] text-[#bac5df]">
+                    {label}
+                  </p>
                 </div>
-              </Link>
-            </Reveal>
-          ))}
+              ))}
+            </div>
+          </div>
         </div>
       </section>
-      <section id="why" className="container-app py-20">
-        <div className="text-center">
-          <p className="font-bold text-brand-600">
-            NIỀM TIN TẠO NÊN HÀNH TRÌNH
-          </p>
-          <h2 className="section-title mt-2">Vì sao chọn PaceCar?</h2>
+      {/* Blue band */}
+      <div className="flex min-h-[105px] flex-col items-center justify-center gap-1 bg-pace-blue p-5 text-center text-white">
+        <p className="font-display text-[26px] font-black leading-[1] tracking-[-0.8936px] sm:text-[35.744px]">
+          ĐẶC QUYỀN THÀNH VIÊN PACECAR
+        </p>
+        <p className="pt-[5px] text-sm leading-[16.5px]">
+          Giá tốt hơn, quy trình rõ hơn, hành trình an tâm hơn
+        </p>
+      </div>
+      {/* Privileges */}
+      <section className="relative isolate overflow-hidden bg-white px-5 py-9 sm:px-10">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[-25px] top-[-19.8px] -z-10 flex h-[343.224px] w-[973.875px] items-center justify-center"
+        >
+          <div className="-rotate-90">
+            <div
+              className="h-[973.875px] w-[343.224px] bg-contain bg-no-repeat"
+              style={{ backgroundImage: "url(/images/home-swoosh-benefits.svg)" }}
+            />
+          </div>
         </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {benefits.map(([I, t, d], index) => (
-            <Reveal key={t} delay={index * 60}>
-              <div className="interactive-card card h-full p-5">
-                <I className="mb-4 text-brand-600" />
-                <h3 className="font-bold">{t}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-500">{d}</p>
+        <div className="flex flex-col gap-10">
+          {privileges.map(([Icon, title, description]) => (
+            <div className="flex max-w-[447px] flex-col gap-2" key={title}>
+              <div className="flex items-start gap-3">
+                <Icon size={20} className="shrink-0 text-pace-blue" aria-hidden="true" />
+                <p className="text-base font-bold leading-[18px] text-pace-ink">
+                  {title}
+                </p>
               </div>
-            </Reveal>
+              <div className="flex items-start gap-3">
+                <Check size={20} className="shrink-0 p-[3px] text-pace-blue" aria-hidden="true" />
+                <p className="text-xs leading-[18.6px] text-pace-muted">
+                  {description}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
       </section>
-      <section id="how-it-works" className="scroll-mt-24 bg-white py-20">
+      {/* Promotions */}
+      <section className="container-app flex flex-col gap-6 pb-6 pt-4">
+        <div className="flex flex-col items-center gap-0.5 text-center">
+          <p className={eyebrow}>ƯU ĐÃI ĐANG CÓ</p>
+          <h2 className={`${h2} pt-0.5`}>Bắt đầu hành trình với giá tốt hơn</h2>
+        </div>
+        <div className="grid gap-4 px-0 sm:px-6 md:grid-cols-2">
+          {promotions?.map((promo, i) => (
+            <article
+              className="relative isolate flex min-h-[340px] flex-col justify-end gap-3 overflow-clip rounded-[4px] bg-pace-ink p-7 text-white"
+              key={promo.id}
+            >
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 -z-10 bg-cover bg-center"
+                style={{ backgroundImage: `url(/images/home-promo-${(i % 2) + 1}.jpg)` }}
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 -z-10 bg-gradient-to-t from-black/[.51] to-transparent to-[70%]"
+              />
+              <div className="flex flex-col gap-2">
+                <p className="text-base font-extrabold leading-[16.5px] text-[#84aeff]">
+                  MÃ {promo.code}
+                </p>
+                <h3 className="font-display text-[29px] font-bold uppercase leading-[29px]">
+                  {promo.title}
+                </h3>
+                <p className="text-xs leading-[18px]">{promo.description}</p>
+              </div>
+              <Link
+                to={`/cars?promoCode=${promo.code}`}
+                className={outlineButton}
+              >
+                Khám phá xe
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
+      {/* Destinations */}
+      <section className="container-app flex flex-col gap-3 py-5">
+        <div className="flex flex-col gap-0.5">
+          <p className={eyebrow}>ĐIỂM ĐẾN PHỔ BIẾN</p>
+          <h2 className={`${h2} pt-0.5`}>Thuê xe gần bạn</h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {destinations.map(([place, image]) => (
+            <Link
+              key={place}
+              to={`/cars?location=${encodeURIComponent(place + ", Hà Nội")}`}
+              className="group relative isolate flex h-[225px] flex-col justify-end overflow-hidden rounded-[3px] bg-pace-ink p-4 text-white"
+            >
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 -z-10 bg-cover bg-center transition duration-500 group-hover:scale-105"
+                style={{ backgroundImage: `url(${image})` }}
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 -z-10 bg-gradient-to-t from-[rgba(4,9,25,0.78)] to-[rgba(4,9,25,0)]"
+              />
+              <p className="font-display text-[25px] font-bold uppercase leading-[37.5px]">
+                {place}
+              </p>
+              <p className="text-xs leading-[15px] opacity-80">
+                Khám phá xe sẵn sàng
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+      {/* Why PaceCar */}
+      <section id="why" className="container-app flex flex-col gap-3 p-6">
+        <div className="flex flex-col items-center gap-0.5 text-center">
+          <p className={eyebrow}>NIỀM TIN TẠO NÊN HÀNH TRÌNH</p>
+          <h2 className={`${h2} pt-0.5`}>Vì sao chọn PaceCar?</h2>
+        </div>
+        <div className="grid sm:grid-cols-2">
+          {trust.map(([Icon, title, description, borders]) => (
+            <div
+              className={`flex min-h-[170px] flex-col items-center justify-center gap-[9px] border-pace-line px-5 py-7 text-center ${borders}`}
+              key={title}
+            >
+              <Icon size={20} className="text-pace-blue" aria-hidden="true" />
+              <h3 className="font-display text-[17px] font-bold uppercase leading-[25.5px] text-pace-ink">
+                {title}
+              </h3>
+              <p className="text-xs leading-[18.6px] text-pace-muted">
+                {description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+      {/* 5 steps */}
+      <section
+        id="how-it-works"
+        className="relative isolate scroll-mt-24 overflow-clip bg-pace-dark pb-[65px] pt-[74px] text-white"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[-19.08px] top-[-111px] -z-10 h-[305.125px] w-[292.003px] bg-contain bg-no-repeat"
+          style={{ backgroundImage: "url(/images/home-swoosh-steps.svg)" }}
+        />
         <div className="container-app">
-          <h2 className="section-title text-center">
+          <h2 className="text-center font-display text-[28px] font-extrabold uppercase leading-[30px] tracking-[-0.8936px] sm:text-[35.744px] sm:leading-[33.957px]">
             Thuê xe chỉ trong 5 bước
           </h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-5">
-            {[
-              "Xác thực hồ sơ",
-              "Tìm xe phù hợp",
-              "Ký hợp đồng số",
-              "Giao nhận bằng ảnh/video",
-              "Hoàn cọc hoặc xử lý",
-            ].map((x, i) => (
-              <Reveal key={x} delay={i * 75}>
-                <div className="text-center">
-                  <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-brand-600 font-bold text-white">
-                    {i + 1}
-                  </span>
-                  <p className="mt-4 font-semibold">{x}</p>
-                </div>
-              </Reveal>
+          <ol className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5">
+            {steps.map((label, i) => (
+              <li className="relative flex flex-col items-center" key={label}>
+                <span className="grid size-[42px] place-items-center rounded-[2px] border-[0.8px] border-[#57585d] text-[11px] font-extrabold leading-[16.5px]">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="max-w-[155px] pt-3 text-center text-xs font-bold uppercase leading-[18px]">
+                  {label}
+                </span>
+                {i < steps.length - 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-[calc(50%+27.85px)] top-5 hidden w-[65%] border-t-[0.8px] border-dashed border-[#55575c] md:block"
+                  />
+                )}
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
-      <section className="container-app py-20">
-        <div className="flex items-end justify-between">
-          <div>
-            <p className="font-bold text-brand-600">GỢI Ý CHO BẠN</p>
-            <h2 className="section-title mt-2">Xe nổi bật</h2>
+      {/* Featured cars */}
+      <section className="container-app flex flex-col gap-5 py-5">
+        <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <p className={eyebrow}>GỢI Ý CHO BẠN</p>
+            <h2 className={`${h2} pb-2.5 pt-0.5`}>Xe nổi bật</h2>
           </div>
-          <Link to="/cars" className="font-bold text-brand-600">
+          <Link
+            to="/cars"
+            className="pb-2.5 text-base font-bold leading-[21px] text-pace-blue hover:underline"
+          >
             Xem tất cả →
           </Link>
         </div>
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {cars?.slice(0, 3).map((c, index) => (
-            <Reveal key={c.id} delay={index * 90}>
-              <CarCard car={c} />
-            </Reveal>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {cars?.slice(0, 4).map((car) => (
+            <FeaturedCarCard
+              car={car}
+              key={car.id}
+              onFavorite={() => favorite(car)}
+            />
           ))}
         </div>
       </section>
-    </>
+    </div>
   );
 }
 export function HelpCenter() {
@@ -1614,106 +1702,134 @@ export function Login() {
     setErr("");
   };
   return (
-    <div className="container-app grid min-h-[680px] place-items-center py-12">
-      <div className="card w-full max-w-md p-7">
-        <div className="text-center">
-          <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-600 text-white">
-            <KeyRound />
+    <section className="relative isolate -mb-20 flex min-h-[760px] flex-col items-center justify-center bg-pace-ink px-5 py-10 font-ui sm:pb-[120px] sm:pt-[90px]">
+      {/* background photo + dark left-to-right overlay (Figma 2:3530) */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-cover bg-center"
+        style={{ backgroundImage: "url(/images/login-bg.jpg)" }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-r from-black/[.78] to-black/[.18]"
+      />
+      <div className="flex w-full max-w-[500px] flex-col gap-5 rounded-[3px] bg-white px-6 pb-8 pt-[42px] shadow-card-pop sm:px-10">
+        <div className="flex flex-col gap-3">
+          <div className="flex justify-center">
+            <LogoMark />
           </div>
-          <h1 className="mt-4 text-2xl font-bold">Chào mừng trở lại</h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Đăng nhập để tiếp tục cùng PaceCar
-          </p>
-        </div>
-        <div
-          role="group"
-          aria-label="Vai trò tài khoản"
-          className={`mt-6 grid rounded-xl bg-slate-100 p-1 ${roles.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}
-        >
-          {roles.map((r) => (
-            <button
-              type="button"
-              onClick={() => pick(r)}
-              aria-pressed={role === r}
-              className={`rounded-lg py-2 text-sm font-semibold ${role === r ? "bg-white shadow" : ""}`}
-              key={r}
-            >
-              {r === "renter"
-                ? "Người thuê"
-                : r === "owner"
-                  ? "Chủ xe"
-                  : "Admin"}
-            </button>
-          ))}
-        </div>
-        <form onSubmit={submit} className="mt-6 space-y-4">
-          <div>
-            <label className="label" htmlFor="login-email">
-              Email
-            </label>
-            <input
-              id="login-email"
-              className={`input ${err ? "border-red-500 focus:border-red-600 focus:ring-red-100" : ""}`}
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setErr("");
-              }}
-              autoComplete="email"
-              aria-invalid={Boolean(err)}
-              aria-describedby={err ? "login-error" : undefined}
-              required
-            />
-          </div>
-          <div>
-            <label className="label" htmlFor="login-password">
-              Mật khẩu
-            </label>
-            <input
-              id="login-password"
-              className={`input ${err ? "border-red-500 focus:border-red-600 focus:ring-red-100" : ""}`}
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setErr("");
-              }}
-              autoComplete="current-password"
-              aria-invalid={Boolean(err)}
-              aria-describedby={err ? "login-error" : undefined}
-              required
-            />
-          </div>
-          {err && (
-            <p
-              id="login-error"
-              className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
-              role="alert"
-            >
-              {err}
+          <div className="flex flex-col items-center gap-1.5 text-center">
+            <h1 className="font-display text-[42px] font-extrabold uppercase leading-[42px] tracking-[-1.05px] text-pace-ink">
+              Chào mừng trở lại
+            </h1>
+            <p className="text-sm leading-[21px] text-pace-muted">
+              Đăng nhập để tiếp tục cùng PaceCar
             </p>
-          )}
-          <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? "Đang đăng nhập..." : "Đăng nhập"}
-          </Button>
-        </form>
-        <p className="mt-5 text-center text-sm text-slate-600">
+          </div>
+        </div>
+        <div className="flex flex-col gap-3">
+          <div
+            role="group"
+            aria-label="Vai trò tài khoản"
+            className={`grid rounded-[2px] bg-pace-tab p-[3px] ${roles.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}
+          >
+            {roles.map((r) => (
+              <button
+                type="button"
+                onClick={() => pick(r)}
+                aria-pressed={role === r}
+                className={`h-[38px] rounded-[2px] text-sm font-bold leading-[21px] text-pace-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pace-blue ${role === r ? "bg-white shadow-tab" : ""}`}
+                key={r}
+              >
+                {r === "renter"
+                  ? "Người thuê"
+                  : r === "owner"
+                    ? "Chủ xe"
+                    : "Admin"}
+              </button>
+            ))}
+          </div>
+          <form onSubmit={submit} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3">
+                <label
+                  className="text-xs font-semibold leading-[18px] text-pace-ink"
+                  htmlFor="login-email"
+                >
+                  Email
+                </label>
+                <input
+                  id="login-email"
+                  className={`h-[54px] w-full rounded-[2px] border-[0.8px] bg-white px-4 text-pace-ink outline-none transition focus:border-pace-blue focus:ring-4 focus:ring-pace-blue/20 ${err ? "border-red-500" : "border-pace-line"}`}
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErr("");
+                  }}
+                  autoComplete="email"
+                  aria-invalid={Boolean(err)}
+                  aria-describedby={err ? "login-error" : undefined}
+                  required
+                />
+              </div>
+              <div className="flex flex-col gap-3">
+                <label
+                  className="text-xs font-semibold leading-[18px] text-pace-ink"
+                  htmlFor="login-password"
+                >
+                  Mật khẩu
+                </label>
+                <input
+                  id="login-password"
+                  className={`h-[54px] w-full rounded-[2px] border-[0.8px] bg-white px-4 text-pace-ink outline-none transition focus:border-pace-blue focus:ring-4 focus:ring-pace-blue/20 ${err ? "border-red-500" : "border-pace-line"}`}
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErr("");
+                  }}
+                  autoComplete="current-password"
+                  aria-invalid={Boolean(err)}
+                  aria-describedby={err ? "login-error" : undefined}
+                  required
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex min-h-[36px] w-full items-center justify-center rounded-[2px] border-[0.8px] border-transparent bg-pace-blue px-[18px] py-2 text-[11px] font-bold uppercase leading-[16.5px] tracking-[0.22px] text-white transition hover:border-pace-blue hover:bg-pace-tab hover:text-pace-blue focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-pace-blue/30 disabled:opacity-50"
+            >
+              {submitting ? "Đang đăng nhập..." : "Đăng nhập"}
+            </button>
+            {err && (
+              <p
+                id="login-error"
+                className="text-xs leading-[21px] text-pace-err"
+                role="alert"
+              >
+                {err}
+              </p>
+            )}
+          </form>
+        </div>
+        <p className="flex flex-wrap justify-center gap-1 text-sm leading-[21px] text-pace-ink">
           Chưa có tài khoản?{" "}
           <Link
             to="/register"
-            className="font-bold text-brand-700 underline-offset-4 hover:underline"
+            className="font-bold text-pace-blue underline-offset-4 hover:underline"
           >
             Đăng ký miễn phí
           </Link>
         </p>
         {demoMode && (
-          <div className="mt-5 rounded-xl bg-blue-50 p-4 text-xs text-blue-800">
+          <div className="rounded-[2px] bg-pace-tab p-4 text-xs text-pace-muted">
             Tài khoản demo development: {role}@pacecar.vn / 123456
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -1822,100 +1938,116 @@ export function Register() {
   }
   const errorText = (field) =>
     errors[field] ? (
-      <p id={`register-${field}-error`} className="mt-1.5 text-sm text-red-700">
+      <p id={`register-${field}-error`} className="mt-1 text-xs text-red-700">
         {errors[field]}
       </p>
     ) : null;
+  const inputBase =
+    "h-12 w-full rounded-[2px] border-[0.8px] bg-white px-4 text-pace-ink outline-none transition focus:border-pace-blue focus:ring-4 focus:ring-pace-blue/20";
   const fieldClass = (field) =>
-    `input ${errors[field] ? "border-red-500 focus:border-red-600 focus:ring-red-100" : ""}`;
+    `${inputBase} ${errors[field] ? "border-red-500" : "border-pace-line"}`;
+  const labelClass = "text-xs font-semibold leading-[18px] text-pace-ink";
+  const star = (
+    <span aria-hidden="true" className="text-pace-star">
+      *
+    </span>
+  );
+  const eyeButton =
+    "absolute inset-y-0 right-1 grid w-10 place-items-center rounded-[2px] text-pace-muted hover:bg-pace-tab";
   return (
-    <div className="container-app grid min-h-[calc(100svh-4rem)] place-items-center py-8 sm:py-12">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-lift lg:grid-cols-[0.82fr_1.18fr]">
-        <aside className="relative hidden overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-700 p-9 text-white lg:flex lg:flex-col lg:justify-between">
-          <div className="surface-grid pointer-events-none absolute inset-0" />
-          <div className="relative">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-signal-400">
-              <ShieldCheck size={26} />
-            </div>
-            <p className="mt-8 text-sm font-bold uppercase tracking-[0.18em] text-blue-200">
+    <section className="-mb-20 flex min-h-[820px] items-center justify-center bg-pace-page px-5 py-10 font-ui">
+      <div className="flex w-full max-w-[510px] items-stretch drop-shadow-[4px_4px_5.35px_rgba(137,137,137,0.25)] lg:w-auto lg:max-w-none">
+        {/* left photo panel (Figma 2:4386) - desktop only */}
+        <aside className="relative hidden min-h-[727px] w-[248px] shrink-0 overflow-hidden rounded-l-[12px] bg-pace-ink lg:block">
+          <div
+            aria-hidden="true"
+            className="absolute inset-y-0 left-[-15.7px] w-[332px] bg-cover bg-center"
+            style={{ backgroundImage: "url(/images/register-side.png)" }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(2.06deg, rgba(0,0,0,0.21) 60.254%, rgba(255,255,255,0) 99.425%)",
+            }}
+          />
+          <LogoMark size={63} className="absolute left-4 top-[15.5px]" />
+          <div className="absolute left-4 top-[264.5px] flex w-[216px] flex-col gap-3 text-white">
+            <p className="font-display text-base font-extrabold uppercase leading-[19.5px] tracking-[0.52px]">
               PaceCar
             </p>
-            <h2 className="mt-3 text-3xl font-extrabold leading-tight">
-              Hành trình tốt bắt đầu từ sự an tâm.
+            <h2 className="font-display text-[48px] font-extrabold uppercase leading-[49.952px] tracking-[-2.0329px]">
+              Hành trình tốt bắt đầu từ sự an tâm
             </h2>
-            <p className="mt-4 leading-7 text-blue-100">
+            <p className="text-sm leading-[23.8px] text-[#f1f1f2]">
               Tham gia cộng đồng thuê xe minh bạch với hồ sơ rõ ràng, chi phí
-              được công khai và hợp đồng số.
+              được công khai và hợp đồng số
             </p>
           </div>
-          <ul className="relative space-y-4 text-sm text-blue-50">
-            {[
-              "Mật khẩu tài khoản được bảo vệ bằng mã băm",
-              "Chủ xe và người thuê đều được xác thực",
-              "Theo dõi booking trong một nơi",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-3">
-                <CheckCircle2
-                  size={18}
-                  className="mt-0.5 shrink-0 text-emerald-300"
-                />
-                {item}
-              </li>
-            ))}
-          </ul>
         </aside>
-        <div className="min-w-0 p-5 sm:p-8 lg:p-10">
-          <div className="mb-7">
-            <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-700 lg:hidden">
-              <UserPlus size={24} />
-            </div>
-            <p className="text-sm font-bold text-brand-700">
+        {/* right form panel (Figma 30:2080) */}
+        <div className="flex w-full min-w-0 flex-col gap-5 rounded-[12px] bg-white lg:w-[510px] lg:rounded-l-none">
+          <div className="flex w-full max-w-[334px] flex-col gap-1 px-5 pt-3">
+            <p className="font-display text-base font-extrabold uppercase leading-[19.5px] tracking-[0.52px] text-pace-blue">
               BẮT ĐẦU CÙNG PACECAR
             </p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">
+            <h1 className="font-display text-[42px] font-extrabold uppercase leading-[42px] tracking-[-1.05px] text-pace-ink">
               Tạo tài khoản
             </h1>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="text-sm leading-[21px] text-pace-muted">
               Chọn vai trò phù hợp, bạn có thể cập nhật hồ sơ sau.
             </p>
           </div>
-          <form onSubmit={submit} noValidate aria-busy={submitting}>
-            <fieldset disabled={submitting} className="space-y-5">
-              <legend className="label mb-2">Bạn muốn tham gia với vai trò</legend>
-              <div
-                role="group"
-                aria-label="Chọn vai trò tài khoản"
-                className="grid grid-cols-2 gap-3"
-              >
-                {[
-                  ["renter", "Người thuê xe", "Tìm và đặt xe cho chuyến đi"],
-                  ["owner", "Chủ xe", "Đăng xe và quản lý lượt thuê"],
-                ].map(([role, title, description]) => (
-                  <button
-                    aria-pressed={values.role === role}
-                    className={`btn-motion min-h-[88px] rounded-2xl border p-3 text-left sm:p-4 ${
-                      values.role === role
-                        ? "border-brand-500 bg-brand-50 ring-2 ring-brand-100"
-                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                    }`}
-                    key={role}
-                    onClick={() => update("role", role)}
-                    type="button"
-                  >
-                    <span className="block font-bold text-slate-900">
-                      {title}
-                    </span>
-                    <span className="mt-1 block text-xs leading-5 text-slate-600">
-                      {description}
-                    </span>
-                  </button>
-                ))}
+          <form
+            onSubmit={submit}
+            noValidate
+            aria-busy={submitting}
+            className="flex flex-col"
+          >
+            <fieldset disabled={submitting} className="m-0 flex min-w-0 flex-col gap-5 border-0 p-0">
+              <div className="flex flex-col gap-3 px-5">
+                <p
+                  id="register-role-label"
+                  className="text-sm font-semibold leading-[21px] text-pace-ink"
+                >
+                  Bạn muốn tham gia với vai trò
+                </p>
+                <div
+                  role="group"
+                  aria-labelledby="register-role-label"
+                  className="grid grid-cols-2 gap-[18px]"
+                >
+                  {[
+                    ["renter", "Người thuê xe", "Tìm và đặt xe cho chuyến đi"],
+                    ["owner", "Chủ xe", "Đăng xe và quản lý lượt thuê"],
+                  ].map(([role, title, description]) => (
+                    <button
+                      aria-pressed={values.role === role}
+                      className={`flex min-h-[90px] flex-col items-start gap-1.5 rounded-[2px] p-[15px] text-left transition ${
+                        values.role === role
+                          ? "border border-pace-blue bg-pace-ice"
+                          : "border-[0.8px] border-pace-line bg-white hover:border-pace-blue/50"
+                      }`}
+                      key={role}
+                      onClick={() => update("role", role)}
+                      type="button"
+                    >
+                      <span className="text-sm font-bold leading-[21px] text-pace-ink">
+                        {title}
+                      </span>
+                      <span className="text-xs leading-[16.5px] text-pace-muted">
+                        {description}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                {errorText("role")}
               </div>
-              {errorText("role")}
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <label className="label" htmlFor="register-name">
-                    Họ và tên <span aria-hidden="true" className="text-red-600">*</span>
+              <div className="grid gap-4 px-5 sm:grid-cols-2 sm:gap-x-[18px]">
+                <div className="flex flex-col gap-2 sm:col-span-2">
+                  <label className={labelClass} htmlFor="register-name">
+                    Họ và tên {star}
                   </label>
                   <input
                     autoComplete="name"
@@ -1929,9 +2061,9 @@ export function Register() {
                   />
                   {errorText("name")}
                 </div>
-                <div>
-                  <label className="label" htmlFor="register-email">
-                    Email <span aria-hidden="true" className="text-red-600">*</span>
+                <div className="flex flex-col gap-2">
+                  <label className={labelClass} htmlFor="register-email">
+                    Email {star}
                   </label>
                   <input
                     autoComplete="email"
@@ -1946,9 +2078,9 @@ export function Register() {
                   />
                   {errorText("email")}
                 </div>
-                <div>
-                  <label className="label" htmlFor="register-phone">
-                    Số điện thoại <span aria-hidden="true" className="text-red-600">*</span>
+                <div className="flex flex-col gap-2">
+                  <label className={labelClass} htmlFor="register-phone">
+                    Số điện thoại {star}
                   </label>
                   <input
                     autoComplete="tel"
@@ -1963,9 +2095,9 @@ export function Register() {
                   />
                   {errorText("phone")}
                 </div>
-                <div>
-                  <label className="label" htmlFor="register-password">
-                    Mật khẩu <span aria-hidden="true" className="text-red-600">*</span>
+                <div className="flex flex-col gap-2">
+                  <label className={labelClass} htmlFor="register-password">
+                    Mật khẩu {star}
                   </label>
                   <div className="relative">
                     <input
@@ -1982,22 +2114,18 @@ export function Register() {
                     <button
                       aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                       aria-pressed={showPassword}
-                      className="btn-motion absolute inset-y-0 right-1 grid w-10 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+                      className={eyeButton}
                       onClick={() => setShowPassword((shown) => !shown)}
                       type="button"
                     >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
-                  <p id="register-password-hint" className="mt-1.5 text-xs text-slate-500">
-                    Từ 8 đến 128 ký tự.
-                  </p>
                   {errorText("password")}
                 </div>
-                <div>
-                  <label className="label" htmlFor="register-confirm-password">
-                    Xác nhận mật khẩu{" "}
-                    <span aria-hidden="true" className="text-red-600">*</span>
+                <div className="flex flex-col gap-2">
+                  <label className={labelClass} htmlFor="register-confirm-password">
+                    Xác nhận mật khẩu {star}
                   </label>
                   <div className="relative">
                     <input
@@ -2024,25 +2152,27 @@ export function Register() {
                           : "Hiện mật khẩu xác nhận"
                       }
                       aria-pressed={showConfirmation}
-                      className="btn-motion absolute inset-y-0 right-1 grid w-10 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+                      className={eyeButton}
                       onClick={() => setShowConfirmation((shown) => !shown)}
                       type="button"
                     >
-                      {showConfirmation ? (
-                        <EyeOff size={18} />
-                      ) : (
-                        <Eye size={18} />
-                      )}
+                      {showConfirmation ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                   {errorText("confirmPassword")}
                 </div>
+                <p
+                  id="register-password-hint"
+                  className="text-[11.2px] leading-[16.8px] text-pace-hint sm:col-span-2 sm:-mt-[13px]"
+                >
+                  Từ 8 đến 128 ký tự.
+                </p>
               </div>
-              <div>
-                <label className="flex cursor-pointer items-start gap-3 text-sm leading-6 text-slate-600">
+              <div className="px-5">
+                <label className="flex cursor-pointer items-start gap-2 text-xs leading-[18px] text-pace-ink">
                   <input
                     checked={values.acceptTerms}
-                    className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                    className="pace-check mt-[2.5px]"
                     onChange={(event) =>
                       update("acceptTerms", event.target.checked)
                     }
@@ -2055,7 +2185,7 @@ export function Register() {
                   <span>
                     Tôi đã đọc và đồng ý với{" "}
                     <Link
-                      className="font-semibold text-brand-700 underline underline-offset-2"
+                      className="text-pace-blue underline"
                       to="/terms"
                       target="_blank"
                       rel="noreferrer"
@@ -2064,7 +2194,7 @@ export function Register() {
                     </Link>{" "}
                     và{" "}
                     <Link
-                      className="font-semibold text-brand-700 underline underline-offset-2"
+                      className="text-pace-blue underline"
                       to="/privacy"
                       target="_blank"
                       rel="noreferrer"
@@ -2079,37 +2209,35 @@ export function Register() {
             </fieldset>
             {formError && (
               <p
-                className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+                className="mx-5 mt-4 text-xs leading-[21px] text-pace-err"
                 role="alert"
               >
                 {formError}
               </p>
             )}
-            <Button
-              className="mt-6 w-full"
-              disabled={submitting}
-              type="submit"
-            >
-              {submitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
-              {!submitting && <ArrowRight size={18} />}
-            </Button>
+            <div className="flex flex-col items-center gap-2 px-5 py-3 mt-5">
+              <button
+                type="submit"
+                disabled={submitting}
+                className={`flex h-[42px] min-h-[42px] w-full items-center justify-center gap-2 rounded-[2px] border-[0.8px] border-transparent px-[18px] text-xs font-bold uppercase leading-[16.5px] tracking-[0.22px] text-white transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-pace-blue/30 disabled:opacity-60 ${
+                  values.acceptTerms
+                    ? "bg-pace-blue hover:border-pace-blue hover:bg-pace-tab hover:text-pace-blue"
+                    : "bg-pace-pale"
+                }`}
+              >
+                {submitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
+                {!submitting && <ArrowRight size={18} />}
+              </button>
+              <p className="text-center text-[11.2px] leading-[16.8px] text-pace-hint">
+                Thông tin tài khoản được gửi qua kết nối bảo mật và mật khẩu{" "}
+                <br className="hidden sm:block" />
+                chỉ được lưu dưới dạng mã băm.
+              </p>
+            </div>
           </form>
-          <p className="mt-5 text-center text-sm text-slate-600">
-            Đã có tài khoản?{" "}
-            <Link
-              className="font-bold text-brand-700 underline-offset-4 hover:underline"
-              to="/login"
-            >
-              Đăng nhập
-            </Link>
-          </p>
-          <p className="mt-6 text-center text-xs leading-5 text-slate-500">
-            Thông tin tài khoản được gửi qua kết nối bảo mật và mật khẩu chỉ
-            được lưu dưới dạng mã băm.
-          </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

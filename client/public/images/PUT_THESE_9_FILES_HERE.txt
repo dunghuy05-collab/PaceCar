@@ -1,0 +1,13 @@
+Save each link (open in the browser, right-click, Save image as) into this folder
+with EXACTLY this file name. Links expire 7 days after they were made (Oct 14, 2026),
+so if one fails, export that frame image from Figma instead.
+
+home-hero.png               https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/e1512.png
+home-promo-1.png            https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/d34a7.png
+home-promo-2.png            https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/bcf1b.png
+home-dest-hadong.png        https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/2d631.png
+home-dest-caugiay.png       https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/12184.png
+home-dest-mydinh.png        https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/dfb57.png
+home-dest-hoalac.png        https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/f2ad5.png
+home-swoosh-benefits.svg    https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/fc617.svg
+home-swoosh-steps.svg       https://www.figma.com/api/mcp/asset/076c2f71-680c-4e8f-a67c-8882c9d8a495/750a6.svg

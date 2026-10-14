@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { api, money } from "../services/api";
 import { useAuth } from "../auth/AuthContext";
+import { PaceLogo } from "./LogoMark";
 export function Button({
   children,
   variant = "primary",
@@ -481,7 +482,7 @@ export function NotificationCenter() {
           setOpen(!open);
           load();
         }}
-        className="relative rounded-xl p-2 hover:bg-slate-100"
+        className="relative rounded-xl p-2 hover:bg-white/10"
         aria-label="Thông báo"
         aria-expanded={open}
         aria-controls={panelId}
@@ -496,7 +497,7 @@ export function NotificationCenter() {
       {open && (
         <div
           id={panelId}
-          className="absolute right-0 top-12 w-[calc(100vw-2rem)] max-w-[340px] overflow-hidden rounded-2xl border bg-white shadow-2xl"
+          className="absolute right-0 top-12 w-[calc(100vw-2rem)] max-w-[340px] overflow-hidden rounded-2xl border bg-white text-slate-900 shadow-2xl"
         >
           <div className="flex items-center justify-between border-b p-4">
             <b>Thông báo</b>
@@ -550,28 +551,30 @@ export function Navbar() {
   useEffect(() => {
     closeMenu();
   }, [location.pathname, location.search, location.hash]);
+  const navLink =
+    "py-2 text-xs font-bold leading-[16.5px] text-white transition-colors hover:text-pace-blue";
+  const cta =
+    "flex min-h-[36px] items-center justify-center rounded-[2px] border-[0.8px] border-transparent bg-pace-blue px-[18px] text-[11px] font-bold uppercase leading-[16.5px] tracking-[0.22px] text-white transition hover:border-pace-blue hover:bg-white hover:text-pace-blue";
+  const ctaTo = user?.role === "owner" ? "/owner/cars/new" : "/cars";
+  const ctaText = user?.role === "owner" ? "Đăng xe cho thuê" : "Thuê xe ngay";
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-      <div className="container-app flex h-16 items-center justify-between">
-        <Link
-          to="/"
-          onClick={closeMenu}
-          className="flex items-center gap-2 text-xl font-extrabold text-brand-600"
-        >
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-white">
-            <Car size={21} />
-          </span>
-          PaceCar
+    <header className="sticky top-0 z-40 bg-pace-dark font-ui text-white">
+      <div className="container-app flex h-[58px] items-center justify-between">
+        <Link to="/" onClick={closeMenu} aria-label="PaceCar - trang chủ">
+          <PaceLogo />
         </Link>
-        <nav className="hidden items-center gap-7 text-sm font-semibold md:flex">
-          <NavLink to="/cars">Tìm xe</NavLink>
-          <a href="/#why">Vì sao PaceCar?</a>
+        <nav className="hidden items-center gap-6 md:flex">
+          <Link to="/help" className={navLink}>
+            Hỗ trợ
+          </Link>
           {!user && (
-            <Link to="/register" className="text-brand-700 hover:text-brand-900">
-              Đăng ký
+            <Link to="/register" className={navLink}>
+              Đăng kí
             </Link>
           )}
-          <Link to={dash}>{user ? "Bảng điều khiển" : "Đăng nhập"}</Link>
+          <Link to={dash} className={navLink}>
+            {user ? "Bảng điều khiển" : "Đăng nhập"}
+          </Link>
           {user && <NotificationCenter />}
           {user && (
             <button
@@ -579,19 +582,17 @@ export function Navbar() {
               onClick={logoutAndLeave}
               aria-label="Đăng xuất"
               title="Đăng xuất"
+              className="rounded-[2px] p-2 hover:bg-white/10"
             >
               <LogOut size={18} />
             </button>
           )}
-          <Link
-            to={user?.role === "owner" ? "/owner/cars/new" : "/cars"}
-            className="btn-motion min-h-11 rounded-xl bg-brand-600 px-4 py-2 text-white shadow-sm hover:bg-brand-700 hover:shadow-md"
-          >
-            {user?.role === "owner" ? "Đăng xe cho thuê" : "Thuê xe ngay"}
+          <Link to={ctaTo} className={cta}>
+            {ctaText}
           </Link>
         </nav>
         <button
-          className="btn-motion grid h-11 w-11 place-items-center rounded-xl text-slate-700 hover:bg-slate-100 md:hidden"
+          className="grid h-11 w-11 place-items-center rounded-[2px] text-white hover:bg-white/10 md:hidden"
           onClick={() => setOpen(!open)}
           aria-label={open ? "Đóng menu điều hướng" : "Mở menu điều hướng"}
           aria-expanded={open}
@@ -601,41 +602,37 @@ export function Navbar() {
         </button>
       </div>
       {open && (
-        <div id="mobile-navigation" className="border-t bg-white p-4 md:hidden">
-          <div className="container-app flex flex-col gap-1 px-0 text-sm font-semibold">
+        <div
+          id="mobile-navigation"
+          className="border-t border-white/10 bg-pace-dark p-4 md:hidden"
+        >
+          <div className="container-app flex flex-col gap-1 px-0 text-xs font-bold">
             <Link
-              to="/cars"
+              to="/help"
               onClick={closeMenu}
-              className="rounded-xl px-3 py-3 hover:bg-slate-50"
+              className="rounded-[2px] px-3 py-3 hover:bg-white/10"
             >
-              Tìm xe
-            </Link>
-            <a
-              href="/#why"
-              onClick={closeMenu}
-              className="rounded-xl px-3 py-3 hover:bg-slate-50"
-            >
-              Vì sao PaceCar?
-            </a>
-            <Link
-              to={dash}
-              onClick={closeMenu}
-              className="rounded-xl px-3 py-3 hover:bg-slate-50"
-            >
-              {user ? "Bảng điều khiển" : "Đăng nhập"}
+              Hỗ trợ
             </Link>
             {!user && (
               <Link
                 to="/register"
                 onClick={closeMenu}
-                className="rounded-xl px-3 py-3 text-brand-700 hover:bg-brand-50"
+                className="rounded-[2px] px-3 py-3 hover:bg-white/10"
               >
-                Tạo tài khoản PaceCar
+                Đăng kí
               </Link>
             )}
+            <Link
+              to={dash}
+              onClick={closeMenu}
+              className="rounded-[2px] px-3 py-3 hover:bg-white/10"
+            >
+              {user ? "Bảng điều khiển" : "Đăng nhập"}
+            </Link>
             {user && (
               <>
-                <div className="flex items-center justify-between rounded-xl px-3 py-2 hover:bg-slate-50">
+                <div className="flex items-center justify-between rounded-[2px] px-3 py-2 hover:bg-white/10">
                   <Link
                     to="/profile"
                     onClick={closeMenu}
@@ -648,18 +645,14 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={logoutAndLeave}
-                  className="flex items-center gap-2 rounded-xl px-3 py-3 text-left text-red-600 hover:bg-red-50"
+                  className="flex items-center gap-2 rounded-[2px] px-3 py-3 text-left text-red-300 hover:bg-white/10"
                 >
                   <LogOut size={18} /> Đăng xuất
                 </button>
               </>
             )}
-            <Link
-              to={user?.role === "owner" ? "/owner/cars/new" : "/cars"}
-              onClick={closeMenu}
-              className="btn-motion mt-2 min-h-11 rounded-xl bg-brand-600 px-4 py-3 text-center text-white"
-            >
-              {user?.role === "owner" ? "Đăng xe cho thuê" : "Thuê xe ngay"}
+            <Link to={ctaTo} onClick={closeMenu} className={`${cta} mt-2`}>
+              {ctaText}
             </Link>
           </div>
         </div>
@@ -779,42 +772,67 @@ export function DashboardShell({ role, children }) {
 }
 export function Footer() {
   return (
-    <footer className="mt-20 bg-slate-950 py-12 text-slate-300">
-      <div className="container-app grid gap-8 md:grid-cols-4">
-        <div className="md:col-span-2">
-          <p className="text-xl font-bold text-white">PaceCar</p>
-          <p className="mt-3 max-w-md text-sm leading-6">
+    <footer className="relative mt-20 overflow-hidden bg-pace-dark px-5 py-[62px] font-ui">
+      {/* decorative swooshes (exported from Figma into /public/images) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-[-39.27px] top-[30.3px] flex h-[272.742px] w-[195.271px] items-center justify-center"
+      >
+        <div style={{ transform: "rotate(16.06deg)" }}>
+          <div
+            className="h-[245.682px] w-[132.478px] bg-contain bg-no-repeat"
+            style={{ backgroundImage: "url(/images/footer-swoosh-right.svg)" }}
+          />
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[-46px] top-[0.3px] flex h-[103.913px] w-[178.528px] items-center justify-center"
+      >
+        <div style={{ transform: "rotate(86.43deg)" }}>
+          <div
+            className="h-[173.052px] w-[93.314px] bg-contain bg-no-repeat"
+            style={{ backgroundImage: "url(/images/footer-swoosh-left.svg)" }}
+          />
+        </div>
+      </div>
+      <div className="relative flex flex-col gap-10 md:flex-row md:items-center md:justify-center md:gap-[119px]">
+        <div className="flex flex-col gap-6 md:w-[347px] md:shrink-0">
+          <PaceLogo />
+          <p className="text-sm leading-[23.8px] text-pace-foot-text">
             Nền tảng thuê xe dựa trên niềm tin, giúp mọi chuyến đi minh bạch và
             an toàn hơn.
           </p>
         </div>
-        <div>
-          <b className="text-white">Khám phá</b>
+        <div className="flex flex-col gap-3 md:w-[96px] md:shrink-0">
+          <b className="text-sm font-bold leading-[21px] text-white">
+            Khám phá
+          </b>
           <nav
             aria-label="Khám phá PaceCar"
-            className="mt-3 flex flex-col items-start gap-2 text-sm"
+            className="flex flex-col items-start gap-2 text-xs leading-[18px] text-pace-foot-link"
           >
-            <Link className="footer-link hover:text-white" to="/cars">
+            <Link className="footer-link hover:text-pace-blue" to="/cars">
               Tìm xe
             </Link>
-            <a className="footer-link hover:text-white" href="/#how-it-works">
+            <a className="footer-link hover:text-pace-blue" href="/#how-it-works">
               Cách hoạt động
             </a>
-            <Link className="footer-link hover:text-white" to="/help">
+            <Link className="footer-link hover:text-pace-blue" to="/help">
               Hỗ trợ tranh chấp
             </Link>
           </nav>
         </div>
-        <div>
-          <b className="text-white">Liên hệ</b>
-          <div className="mt-3 flex flex-col items-start gap-2 text-sm">
+        <div className="flex flex-col gap-3 md:w-[98px] md:shrink-0">
+          <b className="text-sm font-bold leading-[21px] text-white">Liên hệ</b>
+          <div className="flex flex-col items-start gap-2 text-xs leading-[18px] text-pace-foot-link">
             <a
-              className="footer-link hover:text-white"
+              className="footer-link hover:text-pace-blue"
               href="mailto:hello@pacecar.vn"
             >
               hello@pacecar.vn
             </a>
-            <a className="footer-link hover:text-white" href="tel:19001000">
+            <a className="footer-link hover:text-pace-blue" href="tel:19001000">
               1900 1000
             </a>
             <span>Hà Nội, Việt Nam</span>

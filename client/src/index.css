@@ -67,6 +67,21 @@
     background-size: 44px 44px;
     mask-image: linear-gradient(to bottom, black, transparent 90%);
   }
+  .pace-check {
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    border: 1px solid #767676;
+    border-radius: 2px;
+    background: #fff center / 9px no-repeat;
+    cursor: pointer;
+  }
+  .pace-check:checked {
+    border-color: #1769ff;
+    background-color: #1769ff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 8'%3E%3Cpath d='M1 4l2.8 2.8L9 1.2' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
   .btn-motion {
     transition:
       transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),

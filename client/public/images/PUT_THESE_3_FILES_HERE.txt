@@ -1,0 +1,5 @@
+Export these from Figma into this folder (names must match exactly):
+1. register-side.png        <- image on the left of the Register card (node 2:4393)
+2. footer-swoosh-right.svg  <- footer swoosh, right side (node 30:118, the vector inside it)
+3. footer-swoosh-left.svg   <- footer swoosh, left side  (node 30:119, the vector inside it)
+Also keep login-bg.jpg from the earlier update.
