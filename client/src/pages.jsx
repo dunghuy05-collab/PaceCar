@@ -203,10 +203,10 @@ export function Landing() {
     ],
   ];
   const destinations = [
-    ["Hà Đông", "/images/home-dest-hadong.jpg"],
-    ["Cầu Giấy", "/images/home-dest-caugiay.jpg"],
-    ["Mỹ Đình", "/images/home-dest-mydinh.jpg"],
-    ["Hòa Lạc", "/images/home-dest-hoalac.jpg"],
+    ["Hà Đông", "/images/home-dest-hadong.png"],
+    ["Cầu Giấy", "/images/home-dest-caugiay.png"],
+    ["Mỹ Đình", "/images/home-dest-mydinh.png"],
+    ["Hòa Lạc", "/images/home-dest-hoalac.png"],
   ];
   const trust = [
     [ShieldCheck, "Giá minh bạch", "Mọi chi phí được hiển thị trước khi đặt xe.", "border-b-[0.8px] sm:border-r-[0.8px]"],
@@ -923,8 +923,8 @@ export function Cars() {
                   <option>Hatchback</option>
                   <option>Pickup</option>
                   <option>Van</option>
-                </select>
-              </Filter>
+                </FilterSelect>
+              </FilterGroup>
               <Filter label="Số chỗ tối thiểu">
                 <select
                   className="input"
@@ -947,8 +947,8 @@ export function Cars() {
                   <option value="">Tất cả</option>
                   <option>Tự động</option>
                   <option>Số sàn</option>
-                </FilterSelect>
-              </FilterGroup>
+                </select>
+              </Filter>
               {divider}
               <FilterGroup label="Nhiên liệu">
                 <FilterSelect
