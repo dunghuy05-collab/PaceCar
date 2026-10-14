@@ -2,6 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { CalendarDays, MapPin, Search, UserRound } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button, useToast } from "./UI";
+import {
+  HANDOVER_POLICY,
+  validateHandoverTimes,
+} from "../services/rentalPolicy";
 const formatLocalDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -20,6 +24,13 @@ const locations = [
   "Cầu Giấy, Hà Nội",
   "Mỹ Đình, Hà Nội",
   "Hòa Lạc, Hà Nội",
+  "Tây Hồ, Hà Nội",
+  "Long Biên, Hà Nội",
+  "Hai Bà Trưng, Hà Nội",
+  "Thanh Xuân, Hà Nội",
+  "Gia Lâm, Hà Nội",
+  "Hoàn Kiếm, Hà Nội",
+  "Nội Bài, Hà Nội",
 ];
 export default function SearchBar({ compact = false }) {
   const nav = useNavigate(),
@@ -88,6 +99,11 @@ export default function SearchBar({ compact = false }) {
       toast.error("Thời gian trả xe phải sau thời gian nhận xe");
       return;
     }
+    const handoverError = validateHandoverTimes(form.startTime, form.endTime);
+    if (handoverError) {
+      toast.error(handoverError);
+      return;
+    }
     const next = compact ? new URLSearchParams(params) : new URLSearchParams();
     Object.entries(form).forEach(([key, value]) =>
       value ? next.set(key, value) : next.delete(key),
@@ -125,9 +141,12 @@ export default function SearchBar({ compact = false }) {
           </button>
         ))}
       </div>
-      <div className="grid gap-[10px] pt-[10px] sm:grid-cols-2">
-        <label className={box}>
-          <span className={cap}>Khu vực nhận xe</span>
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1.1fr_1fr_1.25fr_1.25fr_auto]">
+        <label className="relative min-w-0 sm:col-span-2 lg:col-span-1">
+          <span className="label">
+            <MapPin className="mr-1 inline" size={16} />
+            Khu vực nhận xe
+          </span>
           <select
             className={val}
             value={form.location}
@@ -140,9 +159,15 @@ export default function SearchBar({ compact = false }) {
               <option key={location}>{location}</option>
             ))}
           </select>
+          <span className="mt-1 block text-[11px] text-slate-400">
+            Điểm hẹn cụ thể hiển thị trong trang xe
+          </span>
         </label>
-        <label className={box}>
-          <span className={cap}>Điểm đến dự kiến</span>
+        <label className="relative min-w-0 sm:col-span-2 lg:col-span-1">
+          <span className="label">
+            <MapPin className="mr-1 inline" size={16} />
+            Điểm đến dự kiến
+          </span>
           <input
             className={val}
             value={form.destination}
@@ -212,6 +237,12 @@ export default function SearchBar({ compact = false }) {
           Tìm xe
         </button>
       </div>
+      <p className="mt-3 text-xs leading-5 text-slate-500">
+        Bàn giao hỗ trợ {HANDOVER_POLICY.supportedFrom}–
+        {HANDOVER_POLICY.supportedUntil}. Khung giờ tiêu chuẩn{" "}
+        {HANDOVER_POLICY.standardFrom}–{HANDOVER_POLICY.standardUntil}; ngoài
+        khung giờ này có phụ phí và được hiển thị trước khi đặt.
+      </p>
       <p className="pt-[11px] text-[9px] leading-[13.5px] text-[#9aa3b4]">
         Khung giờ từ 06:00–22:00. Không phát sinh chi phí phụ khi đặt trực tiếp.
       </p>

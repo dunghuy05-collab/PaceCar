@@ -62,6 +62,7 @@ import {
 } from "./components/UI";
 import { useAuth } from "./auth/AuthContext";
 import SearchBar from "./components/SearchBar";
+import { HANDOVER_POLICY } from "./services/rentalPolicy";
 const Load = PageLoading;
 const localIsoDate = (offsetDays = 0) => {
   const value = new Date();
@@ -171,8 +172,9 @@ export function Landing() {
     }
   }
   const ratedCars =
-    cars?.filter((car) => car.reviewCount > 0 && Number.isFinite(Number(car.rating))) ||
-    [];
+    cars?.filter(
+      (car) => car.reviewCount > 0 && Number.isFinite(Number(car.rating)),
+    ) || [];
   const averageRating = ratedCars.length
     ? (
         ratedCars.reduce((sum, car) => sum + Number(car.rating), 0) /
@@ -318,13 +320,64 @@ export function Landing() {
           ))}
         </div>
       </section>
-      {/* Promotions */}
-      <section className="container-app flex flex-col gap-6 pb-6 pt-4">
-        <div className="flex flex-col items-center gap-0.5 text-center">
-          <p className={eyebrow}>ƯU ĐÃI ĐANG CÓ</p>
-          <h2 className={`${h2} pt-0.5`}>Bắt đầu hành trình với giá tốt hơn</h2>
+      <div className="motion-enter motion-delay-4 container-app relative z-20 -mt-10">
+        <SearchBar />
+      </div>
+      <section className="container-app pt-16">
+        <div className="rounded-3xl border border-brand-100 bg-white p-6 shadow-soft sm:p-8">
+          <div className="max-w-3xl">
+            <p className="font-bold text-brand-600">MÔ HÌNH HOẠT ĐỘNG</p>
+            <h2 className="section-title mt-2">
+              PaceCar đứng ở đâu trong giao dịch?
+            </h2>
+            <p className="mt-3 leading-7 text-slate-600">
+              PaceCar là nền tảng kết nối và hỗ trợ giao dịch. Hợp đồng thuê xe
+              được ký trực tiếp giữa người thuê và chủ xe; PaceCar cung cấp báo
+              giá, hợp đồng số, bằng chứng giao nhận và quy trình hỗ trợ tranh
+              chấp.
+            </p>
+          </div>
+          <div className="mt-7 grid gap-4 md:grid-cols-3">
+            {[
+              [
+                FileSignature,
+                "Hợp đồng giữa hai bên",
+                "Chủ xe cho thuê trực tiếp; người thuê chịu trách nhiệm theo hợp đồng đã ký.",
+              ],
+              [
+                Wallet,
+                "Phí nền tảng minh bạch",
+                "Người thuê trả phí nền tảng 10% trên tiền thuê sau điều chỉnh; toàn bộ được tách dòng trong báo giá.",
+              ],
+              [
+                ShieldCheck,
+                "Hỗ trợ bằng chứng",
+                "PaceCar đối chiếu hồ sơ, ảnh giao nhận và hỗ trợ xử lý sự cố; không phải chủ sở hữu xe.",
+              ],
+            ].map(([Icon, title, description]) => (
+              <article className="rounded-2xl bg-slate-50 p-5" key={title}>
+                <Icon className="text-brand-600" />
+                <h3 className="mt-4 font-bold">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {description}
+                </p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-5 text-xs leading-5 text-slate-500">
+            Giao dịch ngoài PaceCar không được bảo vệ bởi báo giá, hợp đồng số,
+            bằng chứng giao nhận hoặc quy trình hỗ trợ của nền tảng.
+          </p>
         </div>
-        <div className="grid gap-4 px-0 sm:px-6 md:grid-cols-2">
+      </section>
+      <section className="container-app pt-16">
+        <div className="text-center">
+          <p className="font-bold text-brand-600">ƯU ĐÃI ĐANG CÓ</p>
+          <h2 className="section-title mt-2">
+            Bắt đầu hành trình với giá tốt hơn
+          </h2>
+        </div>
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
           {promotions?.map((promo, i) => (
             <article
               className="relative isolate flex min-h-[340px] flex-col justify-end gap-3 overflow-clip rounded-[4px] bg-pace-ink p-7 text-white"
@@ -543,6 +596,52 @@ export function HelpCenter() {
             </Reveal>
           ))}
         </div>
+        <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          <section className="card p-6">
+            <h2 className="text-xl font-bold">
+              Nếu chủ xe hủy sau khi đã xác nhận
+            </h2>
+            <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-600">
+              <li>
+                PaceCar khóa lịch xe và ghi nhận vi phạm vào hồ sơ chủ xe.
+              </li>
+              <li>
+                Đội hỗ trợ ưu tiên tìm xe tương đương trong cùng khu vực và
+                khung giờ.
+              </li>
+              <li>
+                Nếu không có xe thay thế, khoản đã thanh toán được hoàn lại đầy
+                đủ theo hồ sơ giao dịch.
+              </li>
+              <li>
+                Vi phạm lặp lại có thể dẫn đến cảnh báo, tạm dừng hoặc khóa tài
+                khoản chủ xe.
+              </li>
+            </ol>
+          </section>
+          <section className="card p-6">
+            <h2 className="text-xl font-bold">Bàn giao và nhiên liệu</h2>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600">
+              <li>
+                Chụp ngoại thất, nội thất, ODO và mức nhiên liệu khi nhận và
+                trả.
+              </li>
+              <li>
+                Chính sách mặc định là giao đầy – trả đầy; mức thực tế trên biên
+                bản là căn cứ đối chiếu.
+              </li>
+              <li>
+                Giá thuê không bao gồm nhiên liệu tiêu thụ trong hành trình.
+              </li>
+              <li>
+                Bàn giao hỗ trợ {HANDOVER_POLICY.supportedFrom}–
+                {HANDOVER_POLICY.supportedUntil}; ngoài{" "}
+                {HANDOVER_POLICY.standardFrom}–{HANDOVER_POLICY.standardUntil}{" "}
+                có phụ phí.
+              </li>
+            </ul>
+          </section>
+        </div>
         <div className="card mt-8 flex flex-col justify-between gap-5 p-6 sm:flex-row sm:items-center">
           <div>
             <h2 className="font-bold">Cần hỗ trợ trước khi mở tranh chấp?</h2>
@@ -600,6 +699,10 @@ function LegacyCars() {
           <option>Cầu Giấy</option>
           <option>Mỹ Đình</option>
           <option>Hòa Lạc</option>
+          <option>Tây Hồ</option>
+          <option>Long Biên</option>
+          <option>Gia Lâm</option>
+          <option>Nội Bài</option>
         </select>
         <select
           className="input"
@@ -609,6 +712,10 @@ function LegacyCars() {
           <option value="">Mọi loại xe</option>
           <option>Sedan</option>
           <option>SUV</option>
+          <option>MPV</option>
+          <option>Hatchback</option>
+          <option>Pickup</option>
+          <option>Van</option>
         </select>
         <select className="input">
           <option>Tự lái hoặc có tài xế</option>
@@ -814,11 +921,13 @@ export function Cars() {
                   <option>SUV</option>
                   <option>MPV</option>
                   <option>Hatchback</option>
-                </FilterSelect>
-              </FilterGroup>
-              {divider}
-              <FilterGroup label="Số chỗ tối thiểu">
-                <FilterSelect
+                  <option>Pickup</option>
+                  <option>Van</option>
+                </select>
+              </Filter>
+              <Filter label="Số chỗ tối thiểu">
+                <select
+                  className="input"
                   value={params.get("seats") || ""}
                   onChange={(e) => update("seats", e.target.value)}
                 >
@@ -826,11 +935,12 @@ export function Cars() {
                   <option value="4">4 chỗ</option>
                   <option value="5">5 chỗ</option>
                   <option value="7">7 chỗ</option>
-                </FilterSelect>
-              </FilterGroup>
-              {divider}
-              <FilterGroup label="Hộp số">
-                <FilterSelect
+                  <option value="8">8 chỗ</option>
+                </select>
+              </Filter>
+              <Filter label="Hộp số">
+                <select
+                  className="input"
                   value={params.get("transmission") || ""}
                   onChange={(e) => update("transmission", e.target.value)}
                 >
@@ -913,18 +1023,101 @@ export function Cars() {
             ) : items.length ? (
               <div className="grid gap-3 sm:grid-cols-2">
                 {items.map((car) => (
-                  <FeaturedCarCard
-                    key={car.id}
-                    car={car}
-                    to={`/cars/${car.id}${query ? `?${query}` : ""}`}
-                    days={params.get("startDate") ? car.estimatedDays : undefined}
-                    total={params.get("startDate") ? car.estimatedTotal : undefined}
-                    badges={[
-                      car.instantBooking && "Đặt nhanh",
-                      car.deliveryOptions?.ownerDelivery && "Giao xe",
-                    ].filter(Boolean)}
-                    onFavorite={() => favorite(car)}
-                  />
+                  <article className="card group overflow-hidden" key={car.id}>
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={car.imageUrl || car.photos?.[0]}
+                        alt={car.name}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                      <button
+                        onClick={() => favorite(car)}
+                        aria-label={
+                          car.favorite
+                            ? `Bỏ ${car.name} khỏi yêu thích`
+                            : `Lưu ${car.name} vào yêu thích`
+                        }
+                        className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 shadow"
+                      >
+                        <Heart
+                          size={20}
+                          className={
+                            car.favorite
+                              ? "fill-red-500 text-red-500"
+                              : "text-slate-600"
+                          }
+                        />
+                      </button>
+                      <div className="absolute bottom-3 left-3 flex gap-2">
+                        {car.instantBooking && (
+                          <span className="rounded-full bg-amber-400 px-2 py-1 text-[10px] font-bold">
+                            <Zap size={11} className="inline" /> Đặt nhanh
+                          </span>
+                        )}
+                        {car.deliveryOptions?.ownerDelivery && (
+                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-bold">
+                            <Truck size={11} className="inline" /> Giao xe
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-bold">{car.name}</h3>
+                        {car.reviewCount > 0 ? (
+                          <span className="flex items-center gap-1 text-sm font-bold">
+                            <Star
+                              size={14}
+                              className="fill-amber-400 text-amber-400"
+                            />
+                            {car.rating} ({car.reviewCount})
+                          </span>
+                        ) : (
+                          <span className="text-xs font-semibold text-slate-400">
+                            Chưa có đánh giá
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-2 text-sm text-slate-500">
+                        {car.location} · {car.seats} chỗ · {car.transmission}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <TrustScoreBadge score={car.owner?.trustScore} />
+                        <span className="text-xs text-slate-500">
+                          {car.totalTrips} chuyến
+                        </span>
+                      </div>
+                      <div className="mt-4 border-t pt-4">
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <b className="text-lg text-brand-600">
+                              {money(car.pricePerDay)}
+                            </b>
+                            <span className="text-xs text-slate-500">
+                              /ngày
+                            </span>
+                          </div>
+                          {params.get("startDate") && (
+                            <div className="text-right">
+                              <p className="text-xs text-slate-400">
+                                Tiền thuê tạm tính · {car.estimatedDays} ngày
+                              </p>
+                              <b>{money(car.estimatedTotal)}</b>
+                              <p className="mt-1 max-w-28 text-[10px] leading-4 text-slate-400">
+                                Chưa gồm bảo hiểm và phí dịch vụ
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                        <Link
+                          to={`/cars/${car.id}${query ? `?${query}` : ""}`}
+                          className="mt-4 block rounded-xl bg-slate-900 py-2.5 text-center text-sm font-bold text-white hover:bg-brand-600"
+                        >
+                          Xem xe & báo giá
+                        </Link>
+                      </div>
+                    </div>
+                  </article>
                 ))}
               </div>
             ) : (
@@ -1212,8 +1405,8 @@ export function CarDetail() {
           endTime,
           driverOption: params.get("driverOption") || "self",
           pickupOption,
-          pickupLocation: car.location,
-          returnLocation: car.location,
+          pickupLocation: car.handoverPoint || car.location,
+          returnLocation: car.handoverPoint || car.location,
           destination: params.get("destination") || undefined,
           promoCode: code || undefined,
         }),
@@ -1319,6 +1512,19 @@ export function CarDetail() {
           </div>
         )}
       </div>
+      {car.imageSourceUrl && (
+        <p className="mt-2 text-right text-xs text-slate-400">
+          Ảnh minh họa:{" "}
+          <a
+            href={car.imageSourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold underline decoration-slate-300 underline-offset-2 hover:text-brand-600"
+          >
+            {car.imageCredit || "Nguồn ảnh"}
+          </a>
+        </p>
+      )}
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
         <div className="min-w-0 space-y-7">
           <section>
@@ -1332,8 +1538,12 @@ export function CarDetail() {
               )}
             </div>
             <p className="mt-2 text-slate-500">
-              <MapPin className="inline" size={16} /> {car.location} ·{" "}
-              {car.totalTrips} chuyến
+              <MapPin className="inline" size={16} /> Khu vực nhận xe:{" "}
+              {car.location}
+              {car.handoverPoint && (
+                <> · Điểm hẹn mặc định: {car.handoverPoint}</>
+              )}{" "}
+              · {car.totalTrips} chuyến
             </p>
           </section>
           <section className="card grid grid-cols-2 gap-4 p-5 sm:grid-cols-4">
@@ -1391,6 +1601,8 @@ export function CarDetail() {
                 `Trả muộn ${money(car.rules?.lateFeePerHour || 120000)}/giờ`,
                 car.rules?.noSmoking ? "Không hút thuốc" : "Cho phép hút thuốc",
                 `Cọc hoàn lại ${money(car.deposit)}`,
+                "Nhiên liệu: giao đầy – trả đầy, không gồm trong giá thuê",
+                `Bàn giao ${HANDOVER_POLICY.supportedFrom}–${HANDOVER_POLICY.supportedUntil}`,
               ].map((item) => (
                 <div className="rounded-xl bg-white p-4 text-sm" key={item}>
                   ✓ {item}
@@ -1443,6 +1655,11 @@ export function CarDetail() {
                 </span>
               )}
             </div>
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              Giá thuê do chủ xe niêm yết. Phí nền tảng, bảo hiểm, giao xe và
+              phụ phí ngoài giờ chỉ được cộng sau khi bạn chọn lịch và đều hiển
+              thị riêng trong báo giá.
+            </p>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <Field label="Nhận xe">
                 <div className="space-y-2">
@@ -1551,6 +1768,12 @@ export function CarDetail() {
                   <PriceLine label="Phí tài xế" value={quote.driverFee} />
                 )}
                 <PriceLine label="Phí nền tảng" value={quote.platformFee} />
+                {quote.outsideHoursFee > 0 && (
+                  <PriceLine
+                    label="Phụ phí bàn giao ngoài giờ"
+                    value={quote.outsideHoursFee}
+                  />
+                )}
                 {quote.deliveryFee > 0 && (
                   <PriceLine label="Giao nhận xe" value={quote.deliveryFee} />
                 )}{" "}
@@ -2036,15 +2259,20 @@ export function Register() {
                     id="register-name"
                     maxLength={120}
                     aria-invalid={Boolean(errors.name)}
-                    aria-describedby={errors.name ? "register-name-error" : undefined}
+                    aria-describedby={
+                      errors.name ? "register-name-error" : undefined
+                    }
                     onChange={(event) => update("name", event.target.value)}
                     value={values.name}
                   />
                   {errorText("name")}
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className={labelClass} htmlFor="register-email">
-                    Email {star}
+                <div>
+                  <label className="label" htmlFor="register-email">
+                    Email{" "}
+                    <span aria-hidden="true" className="text-red-600">
+                      *
+                    </span>
                   </label>
                   <input
                     autoComplete="email"
@@ -2052,16 +2280,21 @@ export function Register() {
                     id="register-email"
                     inputMode="email"
                     aria-invalid={Boolean(errors.email)}
-                    aria-describedby={errors.email ? "register-email-error" : undefined}
+                    aria-describedby={
+                      errors.email ? "register-email-error" : undefined
+                    }
                     onChange={(event) => update("email", event.target.value)}
                     type="email"
                     value={values.email}
                   />
                   {errorText("email")}
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className={labelClass} htmlFor="register-phone">
-                    Số điện thoại {star}
+                <div>
+                  <label className="label" htmlFor="register-phone">
+                    Số điện thoại{" "}
+                    <span aria-hidden="true" className="text-red-600">
+                      *
+                    </span>
                   </label>
                   <input
                     autoComplete="tel"
@@ -2069,16 +2302,21 @@ export function Register() {
                     id="register-phone"
                     inputMode="tel"
                     aria-invalid={Boolean(errors.phone)}
-                    aria-describedby={errors.phone ? "register-phone-error" : undefined}
+                    aria-describedby={
+                      errors.phone ? "register-phone-error" : undefined
+                    }
                     onChange={(event) => update("phone", event.target.value)}
                     type="tel"
                     value={values.phone}
                   />
                   {errorText("phone")}
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className={labelClass} htmlFor="register-password">
-                    Mật khẩu {star}
+                <div>
+                  <label className="label" htmlFor="register-password">
+                    Mật khẩu{" "}
+                    <span aria-hidden="true" className="text-red-600">
+                      *
+                    </span>
                   </label>
                   <div className="relative">
                     <input
@@ -2088,12 +2326,16 @@ export function Register() {
                       maxLength={128}
                       aria-invalid={Boolean(errors.password)}
                       aria-describedby="register-password-hint register-password-error"
-                      onChange={(event) => update("password", event.target.value)}
+                      onChange={(event) =>
+                        update("password", event.target.value)
+                      }
                       type={showPassword ? "text" : "password"}
                       value={values.password}
                     />
                     <button
-                      aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                      aria-label={
+                        showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+                      }
                       aria-pressed={showPassword}
                       className={eyeButton}
                       onClick={() => setShowPassword((shown) => !shown)}
@@ -2102,11 +2344,20 @@ export function Register() {
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
+                  <p
+                    id="register-password-hint"
+                    className="mt-1.5 text-xs text-slate-500"
+                  >
+                    Từ 8 đến 128 ký tự.
+                  </p>
                   {errorText("password")}
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className={labelClass} htmlFor="register-confirm-password">
-                    Xác nhận mật khẩu {star}
+                <div>
+                  <label className="label" htmlFor="register-confirm-password">
+                    Xác nhận mật khẩu{" "}
+                    <span aria-hidden="true" className="text-red-600">
+                      *
+                    </span>
                   </label>
                   <div className="relative">
                     <input
@@ -2160,7 +2411,9 @@ export function Register() {
                     type="checkbox"
                     aria-invalid={Boolean(errors.acceptTerms)}
                     aria-describedby={
-                      errors.acceptTerms ? "register-acceptTerms-error" : undefined
+                      errors.acceptTerms
+                        ? "register-acceptTerms-error"
+                        : undefined
                     }
                   />
                   <span>
@@ -2255,6 +2508,22 @@ export function LegalInformation() {
           "Không giả mạo danh tính, đăng nội dung trái pháp luật, tìm cách vượt quyền truy cập hoặc gây ảnh hưởng đến tính sẵn sàng của dịch vụ. Chủ xe và người thuê cần kiểm tra kỹ thông tin trước khi xác nhận giao dịch.",
         ],
         [
+          "Vai trò của PaceCar",
+          "PaceCar là nền tảng công nghệ kết nối người thuê với chủ xe, cung cấp công cụ báo giá, hợp đồng số, bằng chứng giao nhận và hỗ trợ tranh chấp. Hợp đồng thuê được ký trực tiếp giữa người thuê và chủ xe; PaceCar không phải chủ sở hữu hoặc bên cho thuê phương tiện.",
+        ],
+        [
+          "Giá và phí dịch vụ",
+          "Chủ xe niêm yết giá thuê và tiền cọc. Người thuê trả phí nền tảng 10% trên tiền thuê sau điều chỉnh, cùng các khoản bảo hiểm, giao xe, tài xế hoặc ngoài giờ nếu phát sinh. Mọi khoản phí phải xuất hiện trong báo giá trước khi người thuê gửi yêu cầu.",
+        ],
+        [
+          "Hủy xe, bàn giao và nhiên liệu",
+          "Nếu chủ xe hủy sau xác nhận, PaceCar ưu tiên tìm xe thay thế hoặc hoàn lại đầy đủ khoản đã thanh toán trong bản demo, đồng thời ghi nhận vi phạm của chủ xe. Hai bên phải chụp ảnh, ghi ODO và mức nhiên liệu khi nhận/trả; mặc định giao đầy – trả đầy và nhiên liệu sử dụng không nằm trong giá thuê.",
+        ],
+        [
+          "Giao dịch ngoài nền tảng",
+          "PaceCar chỉ có thể hỗ trợ các giao dịch được tạo và lưu bằng công cụ của nền tảng. Hai bên tự liên hệ, thanh toán hoặc ký thỏa thuận bên ngoài sẽ không được áp dụng báo giá, hợp đồng số, bằng chứng giao nhận và quy trình hỗ trợ của PaceCar.",
+        ],
+        [
           "Bản demo",
           "PaceCar hiện là bản demo. Báo giá, đặt xe, hợp đồng điện tử và thanh toán mô phỏng không thay thế xác nhận giao dịch hoặc tư vấn pháp lý; không dùng bản demo để gửi tiền hay thực hiện giao dịch thuê xe thật.",
         ],
@@ -2277,9 +2546,7 @@ export function LegalInformation() {
       <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
         {title}
       </h1>
-      <p className="mt-3 text-sm text-slate-500">
-        Cập nhật: 7 tháng 10, 2026
-      </p>
+      <p className="mt-3 text-sm text-slate-500">Cập nhật: 8 tháng 10, 2026</p>
       <div className="mt-8 space-y-5">
         {sections.map(([heading, content]) => (
           <section className="card p-5 sm:p-7" key={heading}>
@@ -3036,6 +3303,8 @@ export function Contract() {
               title="Thời gian thuê"
               lines={[
                 `${dateTime(b.startDate)} – ${dateTime(b.endDate)}`,
+                `Nhận xe: ${b.pickupLocation}`,
+                `Trả xe: ${b.returnLocation}`,
                 `Tổng thanh toán: ${money(b.totalPrice)}`,
                 `Tiền cọc hoàn lại: ${money(b.deposit)}`,
                 `Trạng thái tiền cọc: ${b.paymentStatus === "Paid" ? "Đã thanh toán (mô phỏng)" : b.paymentStatus === "Unpaid" ? "Chưa thanh toán" : "Chưa áp dụng"}`,
@@ -3054,6 +3323,15 @@ export function Contract() {
             </li>
             <li>
               Mọi sự cố phải được thông báo ngay cho PaceCar và đơn vị bảo hiểm.
+            </li>
+            <li>
+              Nhiên liệu không nằm trong giá thuê; hai bên áp dụng giao đầy –
+              trả đầy hoặc đối chiếu theo mức được ghi trong biên bản giao nhận.
+            </li>
+            <li>
+              Hợp đồng này được ký trực tiếp giữa người thuê và chủ xe. PaceCar
+              cung cấp nền tảng và hỗ trợ xử lý dựa trên hồ sơ, không phải chủ
+              xe.
             </li>
             <li>{c.terms || "Điều khoản đang chờ được phát hành."}</li>
           </ol>
@@ -3399,11 +3677,7 @@ export function Evidence() {
         {["Ongoing", "Check-out Review", "Dispute"].includes(
           booking.status,
         ) && (
-          <Button
-            as={Link}
-            to={`/disputes/${bookingId}`}
-            variant="danger"
-          >
+          <Button as={Link} to={`/disputes/${bookingId}`} variant="danger">
             Mở trung tâm tranh chấp
           </Button>
         )}
@@ -4049,7 +4323,8 @@ export function Booking() {
                   {quote.pickupOption === "delivery"
                     ? "Giao xe tận nơi"
                     : "Nhận tại vị trí xe"}{" "}
-                  · {quote.driverOption === "self" ? "Tự lái" : "Có tài xế"}
+                  · {quote.pickupLocation} ·{" "}
+                  {quote.driverOption === "self" ? "Tự lái" : "Có tài xế"}
                 </p>
               </div>
             </div>
@@ -4118,6 +4393,12 @@ export function Booking() {
                 <PriceLine label="Phí tài xế" value={quote.driverFee} />
               )}
               <PriceLine label="Phí nền tảng" value={quote.platformFee} />
+              {quote.outsideHoursFee > 0 && (
+                <PriceLine
+                  label="Phụ phí bàn giao ngoài giờ"
+                  value={quote.outsideHoursFee}
+                />
+              )}
               {quote.deliveryFee > 0 && (
                 <PriceLine label="Giao xe" value={quote.deliveryFee} />
               )}{" "}

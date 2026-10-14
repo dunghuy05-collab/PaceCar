@@ -29,6 +29,77 @@ const migrateLegacyPasswords = (data) => {
   return changed;
 };
 
+const bookingDate = (value, endOfDay = false) => {
+  if (typeof value !== "string") return new Date(value);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value))
+    return new Date(`${value}T${endOfDay ? "23:59:59.999" : "00:00:00"}+07:00`);
+  return new Date(value);
+};
+
+const reconcileBookingStatuses = (data, now = new Date()) => {
+  let changed = false;
+  const nextId = (items) =>
+    Math.max(0, ...items.map((item) => Number(item.id) || 0)) + 1;
+
+  for (const booking of data.bookings || []) {
+    const start = bookingDate(booking.startDate);
+    const end = bookingDate(booking.endDate, true);
+    let nextStatus = null;
+    let reason = null;
+
+    if (
+      ["Pending", "Accepted", "Deposit Required"].includes(booking.status) &&
+      Number.isFinite(start.getTime()) &&
+      start < now
+    ) {
+      nextStatus = "Expired";
+      reason = "Booking chưa sẵn sàng trước thời điểm nhận xe";
+    } else if (
+      ["Contract Signed", "Ready for Check-in"].includes(booking.status) &&
+      Number.isFinite(end.getTime()) &&
+      end < now
+    ) {
+      nextStatus = "Expired";
+      reason = "Thời gian thuê đã kết thúc nhưng chưa check-in";
+    } else if (
+      booking.status === "Ongoing" &&
+      Number.isFinite(end.getTime()) &&
+      end < now
+    ) {
+      nextStatus = "Check-out Review";
+      reason = "Thời gian thuê đã kết thúc; cần đối soát trả xe";
+    }
+
+    if (!nextStatus) continue;
+    const previous = booking.status;
+    const changedAt = now.toISOString();
+    booking.status = nextStatus;
+    booking.statusReason = reason;
+    booking.autoUpdatedAt = changedAt;
+    data.auditLogs.push({
+      id: nextId(data.auditLogs),
+      entity: "booking",
+      entityId: booking.id,
+      action: "STATUS_AUTO_UPDATED",
+      actorId: null,
+      detail: `${previous} -> ${nextStatus}: ${reason}`,
+      createdAt: changedAt,
+    });
+    for (const userId of new Set([booking.renterId, booking.ownerId]))
+      data.notifications.push({
+        id: nextId(data.notifications),
+        userId,
+        title: "Booking được cập nhật tự động",
+        message: `Booking #PC${booking.id} đã tự chuyển từ ${previous} sang ${nextStatus}.`,
+        type: "booking",
+        read: false,
+        createdAt: changedAt,
+      });
+    changed = true;
+  }
+  return changed;
+};
+
 export function read() {
   if (!fs.existsSync(file))
     fs.writeFileSync(file, JSON.stringify(seed, null, 2));
@@ -64,6 +135,7 @@ export function read() {
     },
   ];
   data.auditLogs ||= [];
+  if (reconcileBookingStatuses(data)) changed = true;
   data.sessions ||= [];
   const storedSessionCount = data.sessions.length;
   const activeSessions = data.sessions
@@ -106,11 +178,16 @@ export function read() {
     },
   ];
   data.pricingPolicy ||= {
-    version: "PC-2026.2",
+    version: "PC-2026.3",
     platformFeeRate: 0.1,
     insurancePerDay: 80000,
     weekendSurchargeRate: 0.15,
     driverFeePerDay: 350000,
+    handoverSupportedFrom: "06:00",
+    handoverSupportedUntil: "22:00",
+    handoverStandardFrom: "08:00",
+    handoverStandardUntil: "20:00",
+    handoverOutsideFee: 100000,
     longRentalDiscounts: [
       { minDays: 7, rate: 0.1 },
       { minDays: 3, rate: 0.05 },
@@ -121,8 +198,21 @@ export function read() {
     data.pricingPolicy.driverFeePerDay = 350000;
     changed = true;
   }
-  if (data.pricingPolicy.version === "PC-2026.1") {
-    data.pricingPolicy.version = "PC-2026.2";
+  const handoverDefaults = {
+    handoverSupportedFrom: "06:00",
+    handoverSupportedUntil: "22:00",
+    handoverStandardFrom: "08:00",
+    handoverStandardUntil: "20:00",
+    handoverOutsideFee: 100000,
+  };
+  for (const [key, value] of Object.entries(handoverDefaults)) {
+    if (data.pricingPolicy[key] == null) {
+      data.pricingPolicy[key] = value;
+      changed = true;
+    }
+  }
+  if (["PC-2026.1", "PC-2026.2"].includes(data.pricingPolicy.version)) {
+    data.pricingPolicy.version = "PC-2026.3";
     changed = true;
   }
   const welcomePromotion = data.promotions.find(
@@ -187,6 +277,77 @@ export function read() {
       createdAt: "2026-07-08T08:30:00.000Z",
     },
   ];
+  const defaultHandoverPoints = {
+    "Hà Đông, Hà Nội": "Bến xe Yên Nghĩa, Hà Đông",
+    "Hòa Lạc, Hà Nội": "Khu công nghệ cao Hòa Lạc",
+    "Cầu Giấy, Hà Nội": "Công viên Cầu Giấy",
+    "Mỹ Đình, Hà Nội": "Bến xe Mỹ Đình",
+    "Nội thành Hà Nội": "Công viên Thống Nhất, Hai Bà Trưng",
+    "Tây Hồ, Hà Nội": "Lotte Mall Tây Hồ",
+    "Long Biên, Hà Nội": "Aeon Mall Long Biên",
+    "Hai Bà Trưng, Hà Nội": "Công viên Thống Nhất, Hai Bà Trưng",
+    "Thanh Xuân, Hà Nội": "Royal City, Thanh Xuân",
+    "Gia Lâm, Hà Nội": "Vincom Mega Mall Ocean Park",
+    "Hoàn Kiếm, Hà Nội": "Nhà hát Lớn Hà Nội",
+    "Nội Bài, Hà Nội": "Sảnh đến T1, sân bay Nội Bài",
+  };
+  // Keep the curated demo catalog current on persistent Render disks while
+  // preserving bookings and any owner-created listings.
+  const catalogFields = [
+    "catalogKey",
+    "name",
+    "brand",
+    "model",
+    "year",
+    "location",
+    "handoverPoint",
+    "seats",
+    "transmission",
+    "fuel",
+    "type",
+    "pricePerDay",
+    "deposit",
+    "withDriverAvailable",
+    "selfDriveAvailable",
+    "imageUrl",
+    "imageSourceUrl",
+    "imageCredit",
+    "description",
+  ];
+  for (const catalogCar of seed.cars) {
+    let storedCar = data.cars.find(
+      (car) => car.catalogKey === catalogCar.catalogKey,
+    );
+    if (!storedCar && catalogCar.id <= 10) {
+      const legacyCar = data.cars.find((car) => car.id === catalogCar.id);
+      if (legacyCar && [4, 5, 6].includes(legacyCar.ownerId))
+        storedCar = legacyCar;
+    }
+    if (!storedCar) {
+      const idTaken = data.cars.some((car) => car.id === catalogCar.id);
+      const nextId = Math.max(0, ...data.cars.map((car) => car.id)) + 1;
+      data.cars.push({
+        ...structuredClone(catalogCar),
+        id: idTaken ? nextId : catalogCar.id,
+      });
+      changed = true;
+      continue;
+    }
+    for (const field of catalogFields) {
+      if (storedCar[field] !== catalogCar[field]) {
+        storedCar[field] = catalogCar[field];
+        changed = true;
+      }
+    }
+    if (
+      !Array.isArray(storedCar.photos) ||
+      storedCar.photos.length !== 1 ||
+      storedCar.photos[0] !== catalogCar.imageUrl
+    ) {
+      storedCar.photos = [catalogCar.imageUrl];
+      changed = true;
+    }
+  }
   data.cars = data.cars.map((car) => ({
     listingStatus: "Published",
     photos: car.imageUrl ? [car.imageUrl] : [],
@@ -208,6 +369,8 @@ export function read() {
     instantBooking: false,
     updatedAt: car.updatedAt || "2026-07-01T00:00:00.000Z",
     ...car,
+    handoverPoint:
+      car.handoverPoint || defaultHandoverPoints[car.location] || car.location,
   }));
   data.evidence ||= [];
   for (const evidence of data.evidence) {
