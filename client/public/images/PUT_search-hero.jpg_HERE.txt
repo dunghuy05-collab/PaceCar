@@ -1,0 +1,4 @@
+Save this image as search-hero.jpg in this folder (check the extension: it may download as .jpg or .png,
+and the code expects .jpg in client/src/pages.jsx).
+https://www.figma.com/api/mcp/asset/86f8cb34-ddb4-4b5f-aebf-476837168f2a/16f3a.png
+Link expires 7 days after Oct 14, 2026; if it fails, export that image from Figma.

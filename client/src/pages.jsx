@@ -14,6 +14,7 @@ import {
   Camera,
   Car as CarIcon,
   Check,
+  ChevronDown,
   CheckCircle2,
   Clock3,
   Eye,
@@ -200,10 +201,10 @@ export function Landing() {
     ],
   ];
   const destinations = [
-    ["Hà Đông", "/images/home-dest-hadong.png"],
-    ["Cầu Giấy", "/images/home-dest-caugiay.png"],
-    ["Mỹ Đình", "/images/home-dest-mydinh.png"],
-    ["Hòa Lạc", "/images/home-dest-hoalac.png"],
+    ["Hà Đông", "/images/home-dest-hadong.jpg"],
+    ["Cầu Giấy", "/images/home-dest-caugiay.jpg"],
+    ["Mỹ Đình", "/images/home-dest-mydinh.jpg"],
+    ["Hòa Lạc", "/images/home-dest-hoalac.jpg"],
   ];
   const trust = [
     [ShieldCheck, "Giá minh bạch", "Mọi chi phí được hiển thị trước khi đặt xe.", "border-b-[0.8px] sm:border-r-[0.8px]"],
@@ -721,68 +722,90 @@ export function Cars() {
       </div>
     );
   const items = data?.items || [];
+  const eyebrow =
+    "font-display text-base font-extrabold uppercase leading-[19.5px] tracking-[0.52px] text-pace-blue";
+  const priceInput =
+    "h-[38.6px] w-full rounded-[7px] border-[0.8px] border-pace-line bg-white p-2 text-sm text-pace-ink outline-none transition placeholder:text-pace-ink/50 focus:border-pace-blue focus:ring-4 focus:ring-pace-blue/20";
+  const divider = <hr className="m-0 border-0 border-t border-pace-line" />;
   return (
-    <div>
-      <div className="border-b bg-white py-5">
+    <div className="font-ui">
+      {/* search strip over the photo (Figma 2:576) */}
+      <section className="relative isolate bg-pace-ink py-[34px]">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-cover bg-center"
+          style={{ backgroundImage: "url(/images/search-hero.jpg)" }}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-black/[.88] to-black/50"
+        />
         <div className="container-app">
           <SearchBar compact />
         </div>
-      </div>
-      <div className="container-app py-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-bold text-brand-600">XE KHẢ DỤNG</p>
-            <h1 className="mt-1 text-2xl font-extrabold">
+      </section>
+      {/* results (Figma 2:2349) */}
+      <section className="-mb-20 flex flex-col gap-6 bg-[#f0f1f3] pb-[92px] pt-3">
+        <div className="container-app flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <p className={eyebrow}>XE KHẢ DỤNG</p>
+            <h1 className="font-display text-[34px] font-extrabold uppercase leading-[39.6px] tracking-[-1.1px] text-pace-ink sm:text-[44px]">
               {data ? `${data.total} xe phù hợp` : "Đang tìm xe..."}
             </h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Giá dự kiến theo lịch trình, đã kiểm tra lịch trống phía backend.
+            <p className="text-xs leading-[18px] text-pace-muted">
+              Giá thuê minh bạch, đã kiểm tra thông tin cơ bản
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              className="lg:hidden"
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-[2px] border-[0.8px] border-pace-line bg-white px-3 py-2.5 text-sm text-pace-ink lg:hidden"
               onClick={() => setFiltersOpen((value) => !value)}
               aria-expanded={filtersOpen}
               aria-controls="car-filters"
             >
-              <SlidersHorizontal size={17} /> Bộ lọc
-            </Button>
-            <select
-              aria-label="Sắp xếp kết quả"
-              className="input w-auto min-w-40 sm:min-w-52"
-              value={params.get("sort") || "recommended"}
-              onChange={(e) => update("sort", e.target.value)}
-            >
-              <option value="recommended">PaceCar đề xuất</option>
-              <option value="price-asc">Giá thấp đến cao</option>
-              <option value="price-desc">Giá cao đến thấp</option>
-              <option value="rating">Đánh giá cao nhất</option>
-            </select>
+              <SlidersHorizontal size={16} /> Bộ lọc
+            </button>
+            <div className="relative flex items-center rounded-[2px] border-[0.8px] border-pace-line bg-white px-3 py-2.5">
+              <select
+                aria-label="Sắp xếp kết quả"
+                className="appearance-none bg-transparent pr-6 text-sm text-pace-ink outline-none"
+                value={params.get("sort") || "recommended"}
+                onChange={(e) => update("sort", e.target.value)}
+              >
+                <option value="recommended">PaceCar đề xuất</option>
+                <option value="price-asc">Giá thấp đến cao</option>
+                <option value="price-desc">Giá cao đến thấp</option>
+                <option value="rating">Đánh giá cao nhất</option>
+              </select>
+              <ChevronDown
+                size={14}
+                aria-hidden="true"
+                className="pointer-events-none absolute right-3 text-pace-ink"
+              />
+            </div>
           </div>
         </div>
-        <div className="grid gap-7 lg:grid-cols-[260px_1fr]">
+        <div className="container-app flex flex-col gap-5 lg:flex-row lg:items-start">
           <aside
             id="car-filters"
-            className={`card h-fit p-5 lg:sticky lg:top-24 lg:block ${filtersOpen ? "block" : "hidden"}`}
+            className={`h-fit w-full rounded-[3px] border-[0.8px] border-pace-line bg-white p-5 lg:sticky lg:top-[74px] lg:block lg:w-[270.6px] lg:shrink-0 ${filtersOpen ? "block" : "hidden"}`}
           >
-            <div className="flex items-center justify-between">
-              <h2 className="flex items-center gap-2 font-bold">
-                <SlidersHorizontal size={18} />
+            <div className="flex h-[33px] items-start justify-between">
+              <h2 className="font-display text-[22px] font-bold uppercase leading-[33px] text-pace-ink">
                 Bộ lọc
               </h2>
               <button
+                type="button"
                 onClick={clear}
-                className="text-xs font-bold text-brand-600"
+                className="text-[11px] leading-[16.5px] text-pace-blue hover:underline"
               >
                 Đặt lại
               </button>
             </div>
-            <div className="mt-5 space-y-5">
-              <Filter label="Loại xe">
-                <select
-                  className="input"
+            <div className="mt-3 flex flex-col gap-3">
+              <FilterGroup label="Loại xe">
+                <FilterSelect
                   value={params.get("type") || ""}
                   onChange={(e) => update("type", e.target.value)}
                 >
@@ -791,11 +814,11 @@ export function Cars() {
                   <option>SUV</option>
                   <option>MPV</option>
                   <option>Hatchback</option>
-                </select>
-              </Filter>
-              <Filter label="Số chỗ tối thiểu">
-                <select
-                  className="input"
+                </FilterSelect>
+              </FilterGroup>
+              {divider}
+              <FilterGroup label="Số chỗ tối thiểu">
+                <FilterSelect
                   value={params.get("seats") || ""}
                   onChange={(e) => update("seats", e.target.value)}
                 >
@@ -803,22 +826,22 @@ export function Cars() {
                   <option value="4">4 chỗ</option>
                   <option value="5">5 chỗ</option>
                   <option value="7">7 chỗ</option>
-                </select>
-              </Filter>
-              <Filter label="Hộp số">
-                <select
-                  className="input"
+                </FilterSelect>
+              </FilterGroup>
+              {divider}
+              <FilterGroup label="Hộp số">
+                <FilterSelect
                   value={params.get("transmission") || ""}
                   onChange={(e) => update("transmission", e.target.value)}
                 >
                   <option value="">Tất cả</option>
                   <option>Tự động</option>
                   <option>Số sàn</option>
-                </select>
-              </Filter>
-              <Filter label="Nhiên liệu">
-                <select
-                  className="input"
+                </FilterSelect>
+              </FilterGroup>
+              {divider}
+              <FilterGroup label="Nhiên liệu">
+                <FilterSelect
                   value={params.get("fuel") || ""}
                   onChange={(e) => update("fuel", e.target.value)}
                 >
@@ -827,14 +850,15 @@ export function Cars() {
                   <option>Dầu</option>
                   <option>Điện</option>
                   <option>Hybrid</option>
-                </select>
-              </Filter>
-              <Filter label="Khoảng giá/ngày">
+                </FilterSelect>
+              </FilterGroup>
+              {divider}
+              <FilterGroup label="Khoảng giá/ngày" as="div">
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="number"
                     aria-label="Giá thuê tối thiểu mỗi ngày"
-                    className="input px-3"
+                    className={priceInput}
                     placeholder="Từ"
                     value={params.get("minPrice") || ""}
                     onChange={(e) => update("minPrice", e.target.value)}
@@ -842,143 +866,69 @@ export function Cars() {
                   <input
                     type="number"
                     aria-label="Giá thuê tối đa mỗi ngày"
-                    className="input px-3"
+                    className={priceInput}
                     placeholder="Đến"
                     value={params.get("maxPrice") || ""}
                     onChange={(e) => update("maxPrice", e.target.value)}
                   />
                 </div>
-              </Filter>
-              <label className="flex items-center justify-between rounded-xl bg-slate-50 p-3 text-sm font-semibold">
-                Giao xe tận nơi
-                <input
-                  type="checkbox"
-                  checked={params.get("delivery") === "true"}
-                  onChange={(e) =>
-                    update("delivery", e.target.checked ? "true" : "")
-                  }
-                />
-              </label>
-              <label className="flex items-center justify-between rounded-xl bg-slate-50 p-3 text-sm font-semibold">
-                Đặt xe nhanh
-                <input
-                  type="checkbox"
-                  checked={params.get("instantBooking") === "true"}
-                  onChange={(e) =>
-                    update("instantBooking", e.target.checked ? "true" : "")
-                  }
-                />
-              </label>
-              <Button
-                className="w-full lg:hidden"
+              </FilterGroup>
+              {divider}
+              <div className="flex flex-col gap-3">
+                <label className="flex cursor-pointer items-center gap-2 text-[11px] leading-[16.5px] text-pace-ink">
+                  <input
+                    type="checkbox"
+                    className="pace-check"
+                    checked={params.get("delivery") === "true"}
+                    onChange={(e) =>
+                      update("delivery", e.target.checked ? "true" : "")
+                    }
+                  />
+                  Giao xe tận nơi
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-[11px] leading-[16.5px] text-pace-ink">
+                  <input
+                    type="checkbox"
+                    className="pace-check"
+                    checked={params.get("instantBooking") === "true"}
+                    onChange={(e) =>
+                      update("instantBooking", e.target.checked ? "true" : "")
+                    }
+                  />
+                  Đặt xe nhanh
+                </label>
+              </div>
+              <button
+                type="button"
+                className="mt-1 flex h-10 w-full items-center justify-center rounded-[2px] bg-pace-blue px-[18px] text-xs font-bold uppercase tracking-[0.22px] text-white lg:hidden"
                 onClick={() => setFiltersOpen(false)}
               >
                 Xem {data?.total || 0} xe phù hợp
-              </Button>
+              </button>
             </div>
           </aside>
-          <div className="min-w-0">
+          <div className="flex min-w-0 flex-1 flex-col gap-3">
             {!data ? (
               <PageLoading />
             ) : items.length ? (
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 {items.map((car) => (
-                  <article className="card group overflow-hidden" key={car.id}>
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={car.imageUrl || car.photos?.[0]}
-                        alt={car.name}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                      <button
-                        onClick={() => favorite(car)}
-                        aria-label={
-                          car.favorite
-                            ? `Bỏ ${car.name} khỏi yêu thích`
-                            : `Lưu ${car.name} vào yêu thích`
-                        }
-                        className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 shadow"
-                      >
-                        <Heart
-                          size={20}
-                          className={
-                            car.favorite
-                              ? "fill-red-500 text-red-500"
-                              : "text-slate-600"
-                          }
-                        />
-                      </button>
-                      <div className="absolute bottom-3 left-3 flex gap-2">
-                        {car.instantBooking && (
-                          <span className="rounded-full bg-amber-400 px-2 py-1 text-[10px] font-bold">
-                            <Zap size={11} className="inline" /> Đặt nhanh
-                          </span>
-                        )}
-                        {car.deliveryOptions?.ownerDelivery && (
-                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-bold">
-                            <Truck size={11} className="inline" /> Giao xe
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-bold">{car.name}</h3>
-                        {car.reviewCount > 0 ? (
-                          <span className="flex items-center gap-1 text-sm font-bold">
-                            <Star
-                              size={14}
-                              className="fill-amber-400 text-amber-400"
-                            />
-                            {car.rating} ({car.reviewCount})
-                          </span>
-                        ) : (
-                          <span className="text-xs font-semibold text-slate-400">
-                            Chưa có đánh giá
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-2 text-sm text-slate-500">
-                        {car.location} · {car.seats} chỗ · {car.transmission}
-                      </p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <TrustScoreBadge score={car.owner?.trustScore} />
-                        <span className="text-xs text-slate-500">
-                          {car.totalTrips} chuyến
-                        </span>
-                      </div>
-                      <div className="mt-4 border-t pt-4">
-                        <div className="flex items-end justify-between">
-                          <div>
-                            <b className="text-lg text-brand-600">
-                              {money(car.pricePerDay)}
-                            </b>
-                            <span className="text-xs text-slate-500">
-                              /ngày
-                            </span>
-                          </div>
-                          {params.get("startDate") && (
-                            <div className="text-right">
-                              <p className="text-xs text-slate-400">
-                                Tạm tính {car.estimatedDays} ngày
-                              </p>
-                              <b>{money(car.estimatedTotal)}</b>
-                            </div>
-                          )}
-                        </div>
-                        <Link
-                          to={`/cars/${car.id}${query ? `?${query}` : ""}`}
-                          className="mt-4 block rounded-xl bg-slate-900 py-2.5 text-center text-sm font-bold text-white hover:bg-brand-600"
-                        >
-                          Xem xe & báo giá
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
+                  <FeaturedCarCard
+                    key={car.id}
+                    car={car}
+                    to={`/cars/${car.id}${query ? `?${query}` : ""}`}
+                    days={params.get("startDate") ? car.estimatedDays : undefined}
+                    total={params.get("startDate") ? car.estimatedTotal : undefined}
+                    badges={[
+                      car.instantBooking && "Đặt nhanh",
+                      car.deliveryOptions?.ownerDelivery && "Giao xe",
+                    ].filter(Boolean)}
+                    onFavorite={() => favorite(car)}
+                  />
                 ))}
               </div>
             ) : (
-              <div className="card">
+              <div className="rounded-[3px] bg-white">
                 <EmptyState
                   icon={CarIcon}
                   title="Chưa tìm thấy xe phù hợp"
@@ -988,31 +938,62 @@ export function Cars() {
             )}
             {data?.totalPages > 1 && (
               <nav
-                className="mt-8 flex items-center justify-center gap-3"
+                className="flex items-center justify-center gap-3.5 py-6"
                 aria-label="Phân trang kết quả xe"
               >
-                <Button
-                  variant="outline"
+                <button
+                  type="button"
+                  className={pagerButton}
                   disabled={data.page <= 1}
                   onClick={() => goPage(data.page - 1)}
                 >
                   ← Trang trước
-                </Button>
-                <span className="text-sm font-semibold text-slate-600">
+                </button>
+                <span className="text-sm font-bold leading-[21px] text-pace-ink">
                   Trang {data.page}/{data.totalPages}
                 </span>
-                <Button
-                  variant="outline"
+                <button
+                  type="button"
+                  className={pagerButton}
                   disabled={data.page >= data.totalPages}
                   onClick={() => goPage(data.page + 1)}
                 >
                   Trang sau →
-                </Button>
+                </button>
               </nav>
             )}
           </div>
         </div>
-      </div>
+      </section>
+    </div>
+  );
+}
+const pagerButton =
+  "rounded-[2px] border-[0.8px] border-pace-line bg-white px-[13px] py-[9px] text-sm leading-[21px] text-pace-ink transition hover:border-pace-blue hover:text-pace-blue disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-pace-line disabled:hover:text-pace-ink";
+function FilterGroup({ label, children, as: Tag = "label" }) {
+  return (
+    <Tag className="flex flex-col gap-2">
+      <span className="text-xs font-bold leading-[16.5px] text-pace-ink">
+        {label}
+      </span>
+      {children}
+    </Tag>
+  );
+}
+function FilterSelect({ children, ...props }) {
+  return (
+    <div className="relative">
+      <select
+        {...props}
+        className="h-[36.8px] w-full appearance-none rounded-[2px] bg-white pl-1 pr-6 text-sm text-pace-ink outline-none focus-visible:ring-2 focus-visible:ring-pace-blue/40"
+      >
+        {children}
+      </select>
+      <ChevronDown
+        size={14}
+        aria-hidden="true"
+        className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-pace-ink"
+      />
     </div>
   );
 }

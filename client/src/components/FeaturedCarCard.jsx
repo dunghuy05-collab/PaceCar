@@ -3,7 +3,14 @@ import { Link } from "react-router-dom";
 import { money } from "../services/api";
 
 // Car card from the Figma Home page ("Xe nổi bật", node 2:2019).
-export default function FeaturedCarCard({ car, onFavorite }) {
+export default function FeaturedCarCard({
+  car,
+  onFavorite,
+  to,
+  days,
+  total,
+  badges = [],
+}) {
   const trustScore = car.owner?.trustScore ?? car.trustScore;
   const hasTrust =
     trustScore !== null &&
@@ -23,10 +30,22 @@ export default function FeaturedCarCard({ car, onFavorite }) {
           loading="lazy"
           className="h-full w-full object-cover"
         />
-        {car.verified && (
-          <span className="absolute bottom-[9px] left-2.5 rounded-[2px] bg-[#0aa36e] px-2 py-[5px] text-[9px] font-extrabold uppercase leading-[13.5px] text-white">
-            Đã xác thực
-          </span>
+        {(car.verified || badges.length > 0) && (
+          <div className="absolute bottom-[9px] left-2.5 flex gap-1.5">
+            {car.verified && (
+              <span className="rounded-[2px] bg-[#0aa36e] px-2 py-[5px] text-[9px] font-extrabold uppercase leading-[13.5px] text-white">
+                Đã xác thực
+              </span>
+            )}
+            {badges.map((badge) => (
+              <span
+                key={badge}
+                className="rounded-[2px] bg-white px-2 py-[5px] text-[9px] font-extrabold uppercase leading-[13.5px] text-pace-ink"
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
         )}
         {onFavorite && (
           <button
@@ -80,13 +99,22 @@ export default function FeaturedCarCard({ car, onFavorite }) {
                 /ngày
               </span>
             </p>
-            <p className="text-xs leading-[13.5px] text-pace-muted">
-              {car.seats} chỗ
-            </p>
+            <div className="text-right text-xs leading-[13.5px] text-pace-muted">
+              {days ? (
+                <>
+                  <p>{days} ngày</p>
+                  {total != null && (
+                    <p className="font-bold text-pace-ink">{money(total)}</p>
+                  )}
+                </>
+              ) : (
+                <p>{car.seats} chỗ</p>
+              )}
+            </div>
           </div>
         </div>
         <Link
-          to={`/cars/${car.id}`}
+          to={to || `/cars/${car.id}`}
           className="flex h-10 min-h-[40px] w-full items-center justify-center rounded-[2px] border-[0.8px] border-transparent bg-pace-dark px-[18px] text-[11px] font-bold uppercase leading-[16.5px] tracking-[0.22px] text-white transition hover:bg-pace-blue"
         >
           Xem xe &amp; báo giá

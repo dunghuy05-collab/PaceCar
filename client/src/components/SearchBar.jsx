@@ -95,137 +95,18 @@ export default function SearchBar({ compact = false }) {
     next.delete("page");
     nav(`/cars?${next}`);
   }
-  if (!compact) {
-    const box =
-      "flex min-w-0 flex-col gap-1.5 rounded-lg border-[0.8px] border-pace-line px-3.5 py-1 transition focus-within:border-pace-blue";
-    const cap = "text-[9px] font-bold uppercase leading-[13.5px] text-[#6b6e75]";
-    const val =
-      "h-[18px] min-w-0 w-full bg-transparent p-0 text-xs font-bold leading-[18px] text-pace-ink outline-none placeholder:text-pace-ink";
-    return (
-      <form
-        onSubmit={submit}
-        className="flex w-full flex-col rounded-[3px] bg-white px-4 py-3.5 font-ui drop-shadow-[0_16px_19px_rgba(8,14,73,0.28)]"
-      >
-        <div
-          className="flex h-[29px] gap-1.5"
-          role="group"
-          aria-label="Hình thức thuê xe"
-        >
-          {[
-            ["self", "Tự lái"],
-            ["driver", "Có tài xế"],
-          ].map(([value, label]) => (
-            <button
-              type="button"
-              key={value}
-              onClick={() => setForm({ ...form, driverOption: value })}
-              aria-pressed={form.driverOption === value}
-              className={`rounded-[2px] px-3 py-[7px] text-[10px] font-bold uppercase leading-[15px] transition ${form.driverOption === value ? "bg-pace-dark text-white" : "text-pace-muted hover:bg-pace-tab"}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <div className="grid gap-[10px] pt-[10px] sm:grid-cols-2">
-          <label className={box}>
-            <span className={cap}>Khu vực nhận xe</span>
-            <select
-              className={val}
-              value={form.location}
-              onChange={(e) => setForm({ ...form, location: e.target.value })}
-            >
-              {!locations.includes(form.location) && (
-                <option value={form.location}>{form.location}</option>
-              )}
-              {locations.map((location) => (
-                <option key={location}>{location}</option>
-              ))}
-            </select>
-          </label>
-          <label className={box}>
-            <span className={cap}>Điểm đến dự kiến</span>
-            <input
-              className={val}
-              value={form.destination}
-              onChange={(e) => setForm({ ...form, destination: e.target.value })}
-              placeholder="Ví dụ: Hải Phòng"
-            />
-          </label>
-          <div className={box} role="group" aria-label="Nhận xe">
-            <span className={cap}>Nhận xe</span>
-            <div className="flex min-w-0 gap-2">
-              <input
-                aria-label="Ngày nhận xe"
-                type="date"
-                min={isoDate(0)}
-                required
-                className={`${val} flex-1`}
-                value={form.startDate}
-                onChange={(e) => {
-                  const startDate = e.target.value;
-                  setForm({
-                    ...form,
-                    startDate,
-                    endDate:
-                      startDate && form.endDate < startDate
-                        ? startDate
-                        : form.endDate,
-                  });
-                }}
-              />
-              <input
-                aria-label="Giờ nhận xe"
-                type="time"
-                required
-                className={`${val} flex-1`}
-                value={form.startTime}
-                onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className={box} role="group" aria-label="Trả xe">
-            <span className={cap}>Trả xe</span>
-            <div className="flex min-w-0 gap-2">
-              <input
-                aria-label="Ngày trả xe"
-                type="date"
-                min={form.startDate || isoDate(0)}
-                required
-                className={`${val} flex-1`}
-                value={form.endDate}
-                onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-              />
-              <input
-                aria-label="Giờ trả xe"
-                type="time"
-                required
-                className={`${val} flex-1`}
-                value={form.endTime}
-                onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-              />
-            </div>
-          </div>
-          <button
-            type="submit"
-            className="flex h-10 min-h-[40px] items-center justify-center gap-2 rounded-[2px] border-[0.8px] border-transparent bg-pace-blue px-[18px] text-xs font-bold uppercase leading-[16.5px] tracking-[0.22px] text-white transition hover:border-pace-blue hover:bg-pace-tab hover:text-pace-blue sm:col-span-2"
-          >
-            <Search size={17} aria-hidden="true" />
-            Tìm xe
-          </button>
-        </div>
-        <p className="pt-[11px] text-[9px] leading-[13.5px] text-[#9aa3b4]">
-          Khung giờ từ 06:00–22:00. Không phát sinh chi phí phụ khi đặt trực tiếp.
-        </p>
-      </form>
-    );
-  }
+  const box =
+    "flex min-w-0 flex-col gap-1.5 rounded-lg border-[0.8px] border-pace-line px-3.5 py-1 transition focus-within:border-pace-blue";
+  const cap = "text-[9px] font-bold uppercase leading-[13.5px] text-[#6b6e75]";
+  const val =
+    "h-[18px] min-w-0 w-full bg-transparent p-0 text-xs font-bold leading-[18px] text-pace-ink outline-none placeholder:text-pace-ink";
   return (
     <form
       onSubmit={submit}
-      className={`rounded-2xl bg-white shadow-2xl ${compact ? "border p-3" : "p-4 sm:p-5"}`}
+      className={`flex w-full flex-col rounded-[3px] bg-white px-4 py-3.5 font-ui ${compact ? "drop-shadow-[0_14px_17px_rgba(0,0,0,0.14)]" : "drop-shadow-[0_16px_19px_rgba(8,14,73,0.28)]"}`}
     >
       <div
-        className="mb-4 flex w-fit rounded-xl bg-slate-100 p-1"
+        className="flex h-[29px] gap-1.5"
         role="group"
         aria-label="Hình thức thuê xe"
       >
@@ -235,64 +116,49 @@ export default function SearchBar({ compact = false }) {
         ].map(([value, label]) => (
           <button
             type="button"
+            key={value}
             onClick={() => setForm({ ...form, driverOption: value })}
             aria-pressed={form.driverOption === value}
-            className={`rounded-lg px-4 py-2 text-sm font-bold ${form.driverOption === value ? "bg-brand-600 text-white shadow" : "text-slate-500"}`}
-            key={value}
+            className={`rounded-[2px] px-3 py-[7px] text-[10px] font-bold uppercase leading-[15px] transition ${form.driverOption === value ? "bg-pace-dark text-white" : "text-pace-muted hover:bg-pace-tab"}`}
           >
-            <UserRound className="mr-1 inline" size={15} />
             {label}
           </button>
         ))}
       </div>
-      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1.1fr_1fr_1.25fr_1.25fr_auto]">
-        <label className="relative min-w-0 sm:col-span-2 lg:col-span-1">
-          <span className="label">
-            <MapPin className="mr-1 inline" size={16} />
-            Địa điểm nhận xe
-          </span>
+      <div className="grid gap-[10px] pt-[10px] sm:grid-cols-2">
+        <label className={box}>
+          <span className={cap}>Khu vực nhận xe</span>
           <select
-            className="input"
+            className={val}
             value={form.location}
             onChange={(e) => setForm({ ...form, location: e.target.value })}
           >
             {!locations.includes(form.location) && (
-              <option value={form.location}>
-                Khu vực hiện tại: {form.location}
-              </option>
+              <option value={form.location}>{form.location}</option>
             )}
             {locations.map((location) => (
               <option key={location}>{location}</option>
             ))}
           </select>
         </label>
-        <label className="relative min-w-0 sm:col-span-2 lg:col-span-1">
-          <span className="label">
-            <MapPin className="mr-1 inline" size={16} />
-            Điểm đến dự kiến
-          </span>
+        <label className={box}>
+          <span className={cap}>Điểm đến dự kiến</span>
           <input
-            className="input"
+            className={val}
             value={form.destination}
             onChange={(e) => setForm({ ...form, destination: e.target.value })}
             placeholder="Ví dụ: Hải Phòng"
           />
-          <span className="mt-1 block text-[11px] text-slate-400">
-            Không phải địa điểm nhận xe
-          </span>
         </label>
-        <fieldset className="min-w-0">
-          <span className="label">
-            <CalendarDays className="mr-1 inline" size={16} />
-            Nhận xe
-          </span>
+        <div className={box} role="group" aria-label="Nhận xe">
+          <span className={cap}>Nhận xe</span>
           <div className="flex min-w-0 gap-2">
             <input
               aria-label="Ngày nhận xe"
               type="date"
               min={isoDate(0)}
               required
-              className="input min-w-0 flex-1 px-2"
+              className={`${val} flex-1`}
               value={form.startDate}
               onChange={(e) => {
                 const startDate = e.target.value;
@@ -310,24 +176,21 @@ export default function SearchBar({ compact = false }) {
               aria-label="Giờ nhận xe"
               type="time"
               required
-              className="input min-w-0 flex-1 px-2"
+              className={`${val} flex-1`}
               value={form.startTime}
               onChange={(e) => setForm({ ...form, startTime: e.target.value })}
             />
           </div>
-        </fieldset>
-        <fieldset className="min-w-0">
-          <span className="label">
-            <CalendarDays className="mr-1 inline" size={16} />
-            Trả xe
-          </span>
+        </div>
+        <div className={box} role="group" aria-label="Trả xe">
+          <span className={cap}>Trả xe</span>
           <div className="flex min-w-0 gap-2">
             <input
               aria-label="Ngày trả xe"
               type="date"
               min={form.startDate || isoDate(0)}
               required
-              className="input min-w-0 flex-1 px-2"
+              className={`${val} flex-1`}
               value={form.endDate}
               onChange={(e) => setForm({ ...form, endDate: e.target.value })}
             />
@@ -335,17 +198,23 @@ export default function SearchBar({ compact = false }) {
               aria-label="Giờ trả xe"
               type="time"
               required
-              className="input min-w-0 flex-1 px-2"
+              className={`${val} flex-1`}
               value={form.endTime}
               onChange={(e) => setForm({ ...form, endTime: e.target.value })}
             />
           </div>
-        </fieldset>
-        <Button className="col-span-1 mt-auto h-[50px] px-7 sm:col-span-2 lg:col-span-1">
-          <Search size={18} />
+        </div>
+        <button
+          type="submit"
+          className="flex h-10 min-h-[40px] items-center justify-center gap-2 rounded-[2px] border-[0.8px] border-transparent bg-pace-blue px-[18px] text-xs font-bold uppercase leading-[16.5px] tracking-[0.22px] text-white transition hover:border-pace-blue hover:bg-pace-tab hover:text-pace-blue sm:col-span-2"
+        >
+          <Search size={17} aria-hidden="true" />
           Tìm xe
-        </Button>
+        </button>
       </div>
+      <p className="pt-[11px] text-[9px] leading-[13.5px] text-[#9aa3b4]">
+        Khung giờ từ 06:00–22:00. Không phát sinh chi phí phụ khi đặt trực tiếp.
+      </p>
     </form>
   );
 }
