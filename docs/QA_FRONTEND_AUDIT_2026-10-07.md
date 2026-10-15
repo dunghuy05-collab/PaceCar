@@ -69,7 +69,7 @@ Không ghi nhận lỗi Critical trong phạm vi an toàn đã kiểm thử.
 - Mong đợi: danh sách cảnh báo, trạng thái và ngày tạo được hiển thị.
 - Thực tế: toàn trang chuyển sang Error Boundary với nội dung `Ứng dụng gặp sự cố — date is not defined`.
 - Console: `ReferenceError: date is not defined`.
-- Ảnh: [risk-alerts-crash-owner.png](qa-evidence/risk-alerts-crash-owner.png)
+- Ảnh: [risk-alerts-crash-owner.png](../qa-evidence/risk-alerts-crash-owner.png)
 - Tác động: owner/admin mất hoàn toàn chức năng quản trị rủi ro; đây là một chức năng cốt lõi của định vị sản phẩm.
 
 #### H-02 — Form tìm xe tràn ngang ở mobile 430 px
@@ -81,7 +81,7 @@ Không ghi nhận lỗi Critical trong phạm vi an toàn đã kiểm thử.
   2. Quan sát nhóm “Nhận xe/Trả xe”, đặc biệt trường giờ trả.
 - Mong đợi: form nằm trọn trong viewport, không có horizontal scroll và mọi control đọc/bấm được.
 - Thực tế: `document.scrollWidth = 492`, lớn hơn viewport 62 px; fieldset thứ hai và input giờ có cạnh phải tại 492 px. Phần giờ trả bị cắt khỏi khung.
-- Ảnh: [home-430.png](qa-evidence/home-430.png), [cars-430.png](qa-evidence/cars-430.png)
+- Ảnh: [home-430.png](../qa-evidence/home-430.png), [cars-430.png](../qa-evidence/cars-430.png)
 - Tác động: ảnh hưởng trực tiếp thao tác tìm xe trên điện thoại, luồng chuyển đổi chính của website.
 
 ### Medium
@@ -95,7 +95,7 @@ Không ghi nhận lỗi Critical trong phạm vi an toàn đã kiểm thử.
   3. Mở chi tiết cùng xe.
 - Mong đợi: nếu xe chưa có review trên PaceCar, danh sách cũng hiển thị “Chưa có đánh giá”; hoặc điểm phải được giải thích là nguồn khác.
 - Thực tế: trang chi tiết hiển thị hai thông báo “Chưa có đánh giá trên PaceCar/Chưa có đánh giá”, không có review nào.
-- Ảnh: [cars-430.png](qa-evidence/cars-430.png), [car-detail-430.png](qa-evidence/car-detail-430.png)
+- Ảnh: [cars-430.png](../qa-evidence/cars-430.png), [car-detail-430.png](../qa-evidence/car-detail-430.png)
 - Tác động: làm giảm độ tin cậy của rating và Trust Score.
 
 #### M-02 — Wizard đăng xe cho phép bỏ qua bước nhận diện trống
@@ -235,18 +235,18 @@ DNS ở lần cold test mất khoảng 2.086 s và chiếm phần lớn thời g
 
 ## 6. Bằng chứng
 
-- Trang chủ desktop sau khi scroll: [home-1440-after-scroll.png](qa-evidence/home-1440-after-scroll.png)
-- Trang chủ mobile: [home-430.png](qa-evidence/home-430.png)
-- Danh sách desktop: [cars-search-results-1440.png](qa-evidence/cars-search-results-1440.png)
-- Danh sách mobile: [cars-430.png](qa-evidence/cars-430.png)
-- Empty state: [cars-empty-state.png](qa-evidence/cars-empty-state.png)
-- Chi tiết mobile: [car-detail-430.png](qa-evidence/car-detail-430.png)
-- Dashboard owner: [dashboard-owner-1440.png](qa-evidence/dashboard-owner-1440.png)
-- Dashboard renter mobile: [dashboard-renter-430.png](qa-evidence/dashboard-renter-430.png)
-- Notification mobile: [notifications-mobile-430.png](qa-evidence/notifications-mobile-430.png)
-- Crash Risk Alerts: [risk-alerts-crash-owner.png](qa-evidence/risk-alerts-crash-owner.png)
-- Xác nhận booking (không submit): [booking-confirmation-renter.png](qa-evidence/booking-confirmation-renter.png)
-- Dữ liệu audit máy đọc: [browser-audit.json](qa-evidence/browser-audit.json), [focused-audit.json](qa-evidence/focused-audit.json), [flow-audit.json](qa-evidence/flow-audit.json)
+- Trang chủ desktop sau khi scroll: [home-1440-after-scroll.png](../qa-evidence/home-1440-after-scroll.png)
+- Trang chủ mobile: [home-430.png](../qa-evidence/home-430.png)
+- Danh sách desktop: [cars-search-results-1440.png](../qa-evidence/cars-search-results-1440.png)
+- Danh sách mobile: [cars-430.png](../qa-evidence/cars-430.png)
+- Empty state: [cars-empty-state.png](../qa-evidence/cars-empty-state.png)
+- Chi tiết mobile: [car-detail-430.png](../qa-evidence/car-detail-430.png)
+- Dashboard owner: [dashboard-owner-1440.png](../qa-evidence/dashboard-owner-1440.png)
+- Dashboard renter mobile: [dashboard-renter-430.png](../qa-evidence/dashboard-renter-430.png)
+- Notification mobile: [notifications-mobile-430.png](../qa-evidence/notifications-mobile-430.png)
+- Crash Risk Alerts: [risk-alerts-crash-owner.png](../qa-evidence/risk-alerts-crash-owner.png)
+- Xác nhận booking (không submit): [booking-confirmation-renter.png](../qa-evidence/booking-confirmation-renter.png)
+- Dữ liệu audit máy đọc: [browser-audit.json](../qa-evidence/browser-audit.json), [focused-audit.json](../qa-evidence/focused-audit.json), [flow-audit.json](../qa-evidence/flow-audit.json)
 
 ## 7. Giới hạn và phần chưa xác minh
 

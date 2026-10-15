@@ -16,7 +16,7 @@ PaceCar là demo full-stack của một marketplace thuê xe mang nhận diện 
 
 Yêu cầu: Node.js 20 trở lên.
 
-Nếu nhận dự án dưới dạng ZIP để kiểm thử trên máy khác, xem [HUONG_DAN_TEST.md](./HUONG_DAN_TEST.md).
+Nếu nhận dự án dưới dạng ZIP để kiểm thử trên máy khác, xem [HUONG_DAN_TEST.md](./docs/HUONG_DAN_TEST.md).
 
 ```powershell
 cd D:\LAB3\pacecar_demo
@@ -192,6 +192,7 @@ pacecar_demo/
 │   └── src/
 │       ├── data/       # Seed và db.json được tạo tự động
 │       └── index.js
+├── docs/               # Tài liệu thiết kế, kiểm thử và báo cáo
 ├── package.json
 └── README.md
 ```
@@ -242,7 +243,7 @@ Smoke test khởi động API trên database tạm, kiểm tra đăng ký renter
 
 ## Hệ thống thiết kế
 
-Màu sắc, typography, spacing, trạng thái tương tác, minh họa hero và nguyên tắc accessibility/responsive được ghi tại [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md).
+Màu sắc, typography, spacing, trạng thái tương tác, minh họa hero và nguyên tắc accessibility/responsive được ghi tại [`DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md).
 
 ## Giới hạn của bản demo
 
