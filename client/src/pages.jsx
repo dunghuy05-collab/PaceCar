@@ -243,8 +243,24 @@ export function Landing() {
               "linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.36) 45%, rgba(0,0,0,0.05) 72%), linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 55%)",
           }}
         />
-        <div className="container-app py-6">
-          <SearchBar />
+        <div className="container-app pb-5 pt-6">
+          <div className="max-w-[900px] space-y-4 text-white">
+            {[
+              "Hợp đồng giữa hai bên",
+              "Phí nền tảng minh bạch",
+              "Hỗ trợ bằng chứng",
+            ].map((label) => (
+              <div key={label} className="flex items-center gap-3 text-[15px] font-bold leading-[24px] text-white/95">
+                <span className="flex h-5 w-5 items-center justify-center rounded-[3px] border border-white/60 bg-white/10">
+                  <Check size={12} aria-hidden="true" />
+                </span>
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 max-w-[1000px]">
+            <SearchBar />
+          </div>
         </div>
         <div className="container-app py-8">
           <div className="px-0 sm:px-5">
@@ -320,9 +336,6 @@ export function Landing() {
           ))}
         </div>
       </section>
-      <div className="motion-enter motion-delay-4 container-app relative z-20 -mt-10">
-        <SearchBar />
-      </div>
       <section className="container-app pt-16">
         <div className="rounded-3xl border border-brand-100 bg-white p-6 shadow-soft sm:p-8">
           <div className="max-w-3xl">
