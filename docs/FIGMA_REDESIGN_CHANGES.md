@@ -9,6 +9,8 @@ Newest first. Every change to the Figma redesign work is recorded here and in th
 
 | Date | Change |
 |---|---|
+| 2026-10-16 | Search panel (`SearchBar.jsx`, used on Home and `/cars`): merged the Figma panel with main's custom date and time pickers into one layout. Date and time now always show in full (they were cut off as "10/..." and "08..."). Removed the duplicate footnote. The time picker now lists every 30 minutes from 06:00 to 22:00. |
+| 2026-10-15 | Home page: removed a duplicate booking (search) box.  |
 | 2026-10-15 | Car detail page (`CarDetail`, Figma 2:1226, content frame 2:3133): top bar, single photo with thumbnails, spec card, owner trust card, rules grid, reviews and the booking/price card. Quote, favorite, share and booking logic unchanged. |
 | 2026-10-15 | Repaired `Cars` after the merge with `main`: the conflict resolution had put the old filter dropdowns and old light card markup back inside the new Figma layout. Restored the Figma filters and `FeaturedCarCard` list cards and kept main's `Pickup` / `Van` / `8 chỗ` options and its "Tiền thuê tạm tính" estimate wording. |
 | 2026-10-14 | Car list page (`Cars`, Figma 2:572): new hero strip, filters, car grid and pagination. Search panel is now shared by Home and the car list. `FeaturedCarCard` gained `to`, `days`, `total` and `badges` props. |
@@ -38,7 +40,7 @@ search, favorites, API calls) is unchanged.
 |---|---|
 | `client/src/pages.jsx` | `Login`, `Register`, `Landing`, `Cars` and `CarDetail` rebuilt; new helpers `FilterGroup`, `FilterSelect`, `pagerButton`, `QuoteRow`; new imports (`LogoMark`, `FeaturedCarCard`, `ChevronDown`); `KeyRound` import removed |
 | `client/src/components/UI.jsx` | `Navbar` and `Footer` rewritten (dark); notification bell/panel colors fixed for the dark header; imports `PaceLogo` |
-| `client/src/components/SearchBar.jsx` | Both variants (Home and the compact one on `/cars`) now render the Figma search panel; only the shadow differs. Search logic is unchanged |
+| `client/src/components/SearchBar.jsx` | Both variants (Home and the compact one on `/cars`) render one Figma search panel; only the shadow differs. Keeps main's custom calendar and time-slot pickers (`DateTimePickerModal`, `TimePickerModal`) styled to the Figma look. Search logic is unchanged |
 | `client/src/components/LogoMark.jsx` | **New.** `LogoMark` (sizeable "P" mark) and `PaceLogo` (mark + PACECAR wordmark + tagline) |
 | `client/src/components/FeaturedCarCard.jsx` | **New.** Car card used on Home ("Xe nổi bật") and on the car list. Optional props: `to`, `days`, `total`, `badges`, `onFavorite` |
 | `client/tailwind.config.js` | New `pace-*` colors, `font-display` / `font-ui`, `shadow-card-pop`, `shadow-tab` |
@@ -114,6 +116,21 @@ the site still uses Be Vietnam Pro.
     deposit note are kept although the frame omits them, so the full price breakdown stays visible.
   - The fuel rule keeps main's longer wording ("không gồm trong giá thuê").
   - Icons are lucide icons, not the exact Figma icons.
+- **Search panel (Home and `/cars`):** one panel with the Tự lái / Có tài xế tabs, then two rows
+  (location + destination, then Nhận xe + Trả xe) and the search button. Details:
+  - Each of Nhận xe and Trả xe shows the date and the time side by side with a small calendar or
+    clock icon. The text never truncates, so the whole date and time are visible.
+  - Dates still use main's format (for example 10/15/2026) and 12-hour time; the Figma frame uses
+    15/10/2026.
+  - The calendar and time-slot pickers from main are kept, using the brand blue. The time list now
+    has a slot every 30 minutes from 06:00 to 22:00 (33 slots, built from `HANDOVER_POLICY` so it
+    follows the supported hours) and scrolls inside the popup. All checks (past dates, return after pick-up, handover hours) and the URL
+    parameters are unchanged.
+  - The panel is full width again with 3px corners, as in the Figma frames (the merged file had a
+    960px maximum width and 10px corners).
+  - The old static line "Khung giờ từ 06:00–22:00. Không phát sinh chi phí phụ…" was removed
+    because it contradicted the policy line, which says out-of-hours handovers have a surcharge.
+  - A duplicate booking (search) box on the Home page was removed on 2026-10-15 by the repo owner.
 - **Layout:** `Login`, `Register`, `/cars` and `/cars/:id` content sections use `-mb-20` to sit flush against the footer
   (the footer keeps its `mt-20` for all other pages).
 - **Hover states (from Figma button frames):** header CTA turns white with blue text; form
@@ -167,7 +184,10 @@ background only), so check them in the browser.
 8. `/cars/:id`: open a car from the list (dates carry over), change dates and pickup option and
    confirm the price lines update, apply a promo code, heart and share work, thumbnails switch the
    photo, "Tiếp tục đặt xe" opens the booking page, and below 1024px the sticky price bar shows.
-9. `npm run build` completes without errors.
+9. Search panel (Home and `/cars`): open each calendar and time picker, pick dates and times, and
+   confirm the full date and time stay visible at narrow and wide window sizes; the search button
+   still shows the past-date and handover-hours errors.
+10. `npm run build` completes without errors.
 
 ## Git notes
 
