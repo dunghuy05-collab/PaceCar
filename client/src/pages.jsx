@@ -1381,6 +1381,7 @@ export function CarDetail() {
     if (!car) return;
     const start = new Date(`${startDate}T${startTime}:00`),
       end = new Date(`${endDate}T${endTime}:00`);
+    const requestId = ++quoteRequest.current;
     if (
       !Number.isFinite(start.getTime()) ||
       !Number.isFinite(end.getTime()) ||
@@ -1388,9 +1389,9 @@ export function CarDetail() {
     ) {
       setQuote(null);
       setQuoteError("Thời gian trả xe phải sau thời gian nhận xe");
+      setQuoting(false);
       return;
     }
-    const requestId = ++quoteRequest.current;
     setQuoting(true);
     setQuoteError("");
     if (!preserveOnError) setQuote(null);
@@ -3085,6 +3086,7 @@ function LegacyAdminDashboard() {
                     <td className="p-4">{money(b.totalPrice)}</td>
                     <td className="p-4">
                       <select
+                        aria-label={`Trạng thái đơn thuê #PC${b.id}`}
                         value={b.status}
                         onChange={(e) => update(b.id, e.target.value)}
                         className="rounded-lg border p-2"
@@ -4216,17 +4218,22 @@ export function AdminDashboard() {
 }
 
 export function Booking() {
-  const { carId } = useParams(),
-    [params] = useSearchParams(),
-    { user } = useAuth(),
+  const { carId } = useParams();
+  const [params] = useSearchParams();
+  const quoteId = params.get("quoteId");
+  if (!quoteId) return <LegacyBookingV2 />;
+  return <BookingQuoteFlow carId={carId} quoteId={quoteId} />;
+}
+
+function BookingQuoteFlow({ carId, quoteId }) {
+  const { user } = useAuth(),
     nav = useNavigate(),
     toast = useToast();
-  const quoteId = params.get("quoteId"),
-    {
+  const {
       data: quote,
       error,
       reload,
-    } = useFetch(quoteId ? `/quotes/${quoteId}` : "/quotes/missing"),
+    } = useFetch(`/quotes/${quoteId}`),
     {
       data: car,
       error: carError,
