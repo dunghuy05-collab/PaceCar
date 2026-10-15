@@ -194,12 +194,12 @@ export function Landing() {
     [
       Wallet,
       "Phí nền tảng minh bạch",
-      "Người thuê chỉ trả một lần trên báo giá, toàn bộ được tách dòng rõ ràng.",
+      "Người thuê trả phí nền tảng 10% trên tiền thuê sau điều chỉnh; toàn bộ được tách dòng trong báo giá.",
     ],
     [
       Camera,
       "Hỗ trợ bằng chứng",
-      "PaceCar giữ chức năng hỗ trợ giao nhận và xử lý sự cố.",
+      "PaceCar đối chiếu hồ sơ, ảnh giao nhận và hỗ trợ xử lý sự cố; không phải chủ sở hữu xe.",
     ],
   ];
   const destinations = [
@@ -301,7 +301,7 @@ export function Landing() {
           ĐẶC QUYỀN THÀNH VIÊN PACECAR
         </p>
         <p className="pt-[5px] text-sm leading-[16.5px]">
-          Giá tốt hơn, quy trình rõ hơn, hành trình an tâm hơn
+          Nền tảng kết nối giao dịch, minh bạch chi phí và hỗ trợ hành trình
         </p>
       </div>
       {/* Privileges */}
@@ -318,8 +318,14 @@ export function Landing() {
           </div>
         </div>
         <div className="flex flex-col gap-10">
+          <p className="max-w-3xl text-sm leading-6 text-pace-muted">
+            PaceCar là nền tảng kết nối và hỗ trợ giao dịch. Hợp đồng thuê xe
+            được ký trực tiếp giữa người thuê và chủ xe; PaceCar cung cấp báo
+            giá, hợp đồng số, bằng chứng giao nhận và quy trình hỗ trợ tranh
+            chấp.
+          </p>
           {privileges.map(([Icon, title, description]) => (
-            <div className="flex max-w-[447px] flex-col gap-2" key={title}>
+            <div className="flex flex-col gap-2" key={title}>
               <div className="flex items-start gap-3">
                 <Icon size={20} className="shrink-0 text-pace-blue" aria-hidden="true" />
                 <p className="text-base font-bold leading-[18px] text-pace-ink">
@@ -328,56 +334,13 @@ export function Landing() {
               </div>
               <div className="flex items-start gap-3">
                 <Check size={20} className="shrink-0 p-[3px] text-pace-blue" aria-hidden="true" />
-                <p className="text-xs leading-[18.6px] text-pace-muted">
+                <p className="text-xs leading-[18.6px] text-pace-muted md:whitespace-nowrap">
                   {description}
                 </p>
               </div>
             </div>
           ))}
-        </div>
-      </section>
-      <section className="container-app pt-16">
-        <div className="rounded-3xl border border-brand-100 bg-white p-6 shadow-soft sm:p-8">
-          <div className="max-w-3xl">
-            <p className="font-bold text-brand-600">MÔ HÌNH HOẠT ĐỘNG</p>
-            <h2 className="section-title mt-2">
-              PaceCar đứng ở đâu trong giao dịch?
-            </h2>
-            <p className="mt-3 leading-7 text-slate-600">
-              PaceCar là nền tảng kết nối và hỗ trợ giao dịch. Hợp đồng thuê xe
-              được ký trực tiếp giữa người thuê và chủ xe; PaceCar cung cấp báo
-              giá, hợp đồng số, bằng chứng giao nhận và quy trình hỗ trợ tranh
-              chấp.
-            </p>
-          </div>
-          <div className="mt-7 grid gap-4 md:grid-cols-3">
-            {[
-              [
-                FileSignature,
-                "Hợp đồng giữa hai bên",
-                "Chủ xe cho thuê trực tiếp; người thuê chịu trách nhiệm theo hợp đồng đã ký.",
-              ],
-              [
-                Wallet,
-                "Phí nền tảng minh bạch",
-                "Người thuê trả phí nền tảng 10% trên tiền thuê sau điều chỉnh; toàn bộ được tách dòng trong báo giá.",
-              ],
-              [
-                ShieldCheck,
-                "Hỗ trợ bằng chứng",
-                "PaceCar đối chiếu hồ sơ, ảnh giao nhận và hỗ trợ xử lý sự cố; không phải chủ sở hữu xe.",
-              ],
-            ].map(([Icon, title, description]) => (
-              <article className="rounded-2xl bg-slate-50 p-5" key={title}>
-                <Icon className="text-brand-600" />
-                <h3 className="mt-4 font-bold">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {description}
-                </p>
-              </article>
-            ))}
-          </div>
-          <p className="mt-5 text-xs leading-5 text-slate-500">
+          <p className="max-w-3xl text-xs leading-5 text-pace-muted">
             Giao dịch ngoài PaceCar không được bảo vệ bởi báo giá, hợp đồng số,
             bằng chứng giao nhận hoặc quy trình hỗ trợ của nền tảng.
           </p>

@@ -9,6 +9,7 @@ Newest first. Every change to the Figma redesign work is recorded here and in th
 
 | Date | Change |
 |---|---|
+| 2026-10-16 | Merged operating model part on homepage with member perks (were overlapping in content)
 | 2026-10-16 | Search panel (`SearchBar.jsx`, used on Home and `/cars`): merged the Figma panel with main's custom date and time pickers into one layout. Date and time now always show in full (they were cut off as "10/..." and "08..."). Removed the duplicate footnote. The time picker now lists every 30 minutes from 06:00 to 22:00. |
 | 2026-10-15 | Home page: removed a duplicate booking (search) box.  |
 | 2026-10-15 | Car detail page (`CarDetail`, Figma 2:1226, content frame 2:3133): top bar, single photo with thumbnails, spec card, owner trust card, rules grid, reviews and the booking/price card. Quote, favorite, share and booking logic unchanged. |
