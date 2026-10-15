@@ -102,10 +102,13 @@ export default function FeaturedCarCard({
             <div className="text-right text-xs leading-[13.5px] text-pace-muted">
               {days ? (
                 <>
-                  <p>{days} ngày</p>
+                  <p>Tiền thuê tạm tính · {days} ngày</p>
                   {total != null && (
                     <p className="font-bold text-pace-ink">{money(total)}</p>
                   )}
+                  <p className="ml-auto max-w-28 text-[10px] leading-4 text-pace-hint">
+                    Chưa gồm bảo hiểm và phí dịch vụ
+                  </p>
                 </>
               ) : (
                 <p>{car.seats} chỗ</p>

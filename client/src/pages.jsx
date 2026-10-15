@@ -925,9 +925,9 @@ export function Cars() {
                   <option>Van</option>
                 </FilterSelect>
               </FilterGroup>
-              <Filter label="Số chỗ tối thiểu">
-                <select
-                  className="input"
+              {divider}
+              <FilterGroup label="Số chỗ tối thiểu">
+                <FilterSelect
                   value={params.get("seats") || ""}
                   onChange={(e) => update("seats", e.target.value)}
                 >
@@ -936,19 +936,19 @@ export function Cars() {
                   <option value="5">5 chỗ</option>
                   <option value="7">7 chỗ</option>
                   <option value="8">8 chỗ</option>
-                </select>
-              </Filter>
-              <Filter label="Hộp số">
-                <select
-                  className="input"
+                </FilterSelect>
+              </FilterGroup>
+              {divider}
+              <FilterGroup label="Hộp số">
+                <FilterSelect
                   value={params.get("transmission") || ""}
                   onChange={(e) => update("transmission", e.target.value)}
                 >
                   <option value="">Tất cả</option>
                   <option>Tự động</option>
                   <option>Số sàn</option>
-                </select>
-              </Filter>
+                </FilterSelect>
+              </FilterGroup>
               {divider}
               <FilterGroup label="Nhiên liệu">
                 <FilterSelect
@@ -1023,101 +1023,18 @@ export function Cars() {
             ) : items.length ? (
               <div className="grid gap-3 sm:grid-cols-2">
                 {items.map((car) => (
-                  <article className="card group overflow-hidden" key={car.id}>
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={car.imageUrl || car.photos?.[0]}
-                        alt={car.name}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                      <button
-                        onClick={() => favorite(car)}
-                        aria-label={
-                          car.favorite
-                            ? `Bỏ ${car.name} khỏi yêu thích`
-                            : `Lưu ${car.name} vào yêu thích`
-                        }
-                        className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 shadow"
-                      >
-                        <Heart
-                          size={20}
-                          className={
-                            car.favorite
-                              ? "fill-red-500 text-red-500"
-                              : "text-slate-600"
-                          }
-                        />
-                      </button>
-                      <div className="absolute bottom-3 left-3 flex gap-2">
-                        {car.instantBooking && (
-                          <span className="rounded-full bg-amber-400 px-2 py-1 text-[10px] font-bold">
-                            <Zap size={11} className="inline" /> Đặt nhanh
-                          </span>
-                        )}
-                        {car.deliveryOptions?.ownerDelivery && (
-                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-bold">
-                            <Truck size={11} className="inline" /> Giao xe
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-bold">{car.name}</h3>
-                        {car.reviewCount > 0 ? (
-                          <span className="flex items-center gap-1 text-sm font-bold">
-                            <Star
-                              size={14}
-                              className="fill-amber-400 text-amber-400"
-                            />
-                            {car.rating} ({car.reviewCount})
-                          </span>
-                        ) : (
-                          <span className="text-xs font-semibold text-slate-400">
-                            Chưa có đánh giá
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-2 text-sm text-slate-500">
-                        {car.location} · {car.seats} chỗ · {car.transmission}
-                      </p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <TrustScoreBadge score={car.owner?.trustScore} />
-                        <span className="text-xs text-slate-500">
-                          {car.totalTrips} chuyến
-                        </span>
-                      </div>
-                      <div className="mt-4 border-t pt-4">
-                        <div className="flex items-end justify-between">
-                          <div>
-                            <b className="text-lg text-brand-600">
-                              {money(car.pricePerDay)}
-                            </b>
-                            <span className="text-xs text-slate-500">
-                              /ngày
-                            </span>
-                          </div>
-                          {params.get("startDate") && (
-                            <div className="text-right">
-                              <p className="text-xs text-slate-400">
-                                Tiền thuê tạm tính · {car.estimatedDays} ngày
-                              </p>
-                              <b>{money(car.estimatedTotal)}</b>
-                              <p className="mt-1 max-w-28 text-[10px] leading-4 text-slate-400">
-                                Chưa gồm bảo hiểm và phí dịch vụ
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        <Link
-                          to={`/cars/${car.id}${query ? `?${query}` : ""}`}
-                          className="mt-4 block rounded-xl bg-slate-900 py-2.5 text-center text-sm font-bold text-white hover:bg-brand-600"
-                        >
-                          Xem xe & báo giá
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
+                  <FeaturedCarCard
+                    key={car.id}
+                    car={car}
+                    to={`/cars/${car.id}${query ? `?${query}` : ""}`}
+                    days={params.get("startDate") ? car.estimatedDays : undefined}
+                    total={params.get("startDate") ? car.estimatedTotal : undefined}
+                    badges={[
+                      car.instantBooking && "Đặt nhanh",
+                      car.deliveryOptions?.ownerDelivery && "Giao xe",
+                    ].filter(Boolean)}
+                    onFavorite={() => favorite(car)}
+                  />
                 ))}
               </div>
             ) : (
@@ -1377,6 +1294,7 @@ export function CarDetail() {
     [quoteError, setQuoteError] = useState(""),
     [quoting, setQuoting] = useState(false);
   const quoteRequest = useRef(0);
+  const [photo, setPhoto] = useState(0);
   const requestQuote = async (code = appliedPromo, preserveOnError = false) => {
     if (!car) return;
     const start = new Date(`${startDate}T${startTime}:00`),
@@ -1448,227 +1366,307 @@ export function CarDetail() {
       toast(e.message);
     }
   }
+  const h2 =
+    "font-display text-[25px] font-extrabold uppercase leading-[37.5px] tracking-[-0.625px] text-pace-ink";
+  const card = "rounded-[3px] bg-white shadow-[2px_2px_4px_rgba(128,128,128,0.25)]";
+  const topButton =
+    "flex min-h-[40px] items-center justify-center gap-2 rounded-[2px] border-[0.8px] border-[#cfd0d3] bg-white px-[18px] text-xs font-bold uppercase leading-[16.5px] tracking-[0.22px] text-pace-ink transition hover:border-pace-blue hover:text-pace-blue";
+  const fieldLabel = "text-xs font-semibold leading-[18px] text-pace-ink";
+  const fieldInput =
+    "h-[42px] w-full rounded-[2px] border-[0.8px] border-pace-line bg-white px-[13px] text-xs font-semibold text-pace-ink outline-none transition focus:border-pace-blue focus:ring-4 focus:ring-pace-blue/20";
+  const primaryButton =
+    "flex h-12 min-h-[48px] items-center justify-center gap-2 rounded-[2px] border-[0.8px] border-transparent bg-pace-blue px-[18px] text-sm font-bold uppercase leading-[16.5px] tracking-[0.22px] text-white transition hover:border-pace-blue hover:bg-pace-tab hover:text-pace-blue";
+  const photoSrc = photos[Math.min(photo, photos.length - 1)];
+  const trustValue = car.owner?.trustScore;
+  const hasTrust =
+    trustValue !== null &&
+    trustValue !== undefined &&
+    trustValue !== "" &&
+    Number.isFinite(Number(trustValue));
+  const trustTone = !hasTrust
+    ? "bg-pace-tab text-pace-muted"
+    : Number(trustValue) >= 80
+      ? "bg-[#ecfbf5] text-[#0aa36e]"
+      : Number(trustValue) >= 50
+        ? "bg-amber-50 text-amber-700"
+        : "bg-red-50 text-red-700";
+  const riskLevel = car.owner?.riskLevel || "Medium";
+  const riskTone =
+    riskLevel === "Low"
+      ? "bg-[#ecfbf5] text-[#0aa36e]"
+      : riskLevel === "High"
+        ? "bg-red-50 text-red-700"
+        : "bg-amber-50 text-amber-700";
+  const pill = "rounded-full px-3 py-2 text-xs font-bold leading-[15px]";
   return (
-    <div className="container-app py-8 pb-28 lg:pb-8">
-      <div className="mb-5 flex items-center justify-between">
-        <Link
-          to={`/cars?${params}`}
-          className="text-sm font-bold text-slate-500"
-        >
-          ← Quay lại kết quả
-        </Link>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={toggleFavorite}>
-            <Heart
-              size={17}
-              className={car.favorite ? "fill-red-500 text-red-500" : ""}
-            />
-            {car.favorite ? "Đã yêu thích" : "Yêu thích"}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={async () => {
-              try {
-                if (navigator.share)
-                  await navigator.share({
-                    title: car.name,
-                    url: window.location.href,
-                  });
-                else await navigator.clipboard.writeText(window.location.href);
-                toast("Đã chia sẻ liên kết xe");
-              } catch (error) {
-                if (error.name !== "AbortError")
-                  toast("Không thể chia sẻ liên kết lúc này");
-              }
-            }}
+    <div className="font-ui">
+      {/* top bar + photo (Figma 12:4699) */}
+      <div className="bg-white">
+        <div className="container-app flex items-start justify-between gap-3 py-3">
+          <Link
+            to={`/cars?${params}`}
+            className="py-2.5 text-sm leading-[21px] text-pace-muted hover:text-pace-blue"
           >
-            <Share2 size={17} /> Chia sẻ
-          </Button>
+            ← Quay lại
+          </Link>
+          <div className="flex gap-3">
+            <button type="button" className={topButton} onClick={toggleFavorite}>
+              <Heart
+                size={18}
+                className={car.favorite ? "fill-red-500 text-red-500" : ""}
+              />
+              {car.favorite ? "Đã yêu thích" : "Yêu thích"}
+            </button>
+            <button
+              type="button"
+              className={topButton}
+              onClick={async () => {
+                try {
+                  if (navigator.share)
+                    await navigator.share({
+                      title: car.name,
+                      url: window.location.href,
+                    });
+                  else await navigator.clipboard.writeText(window.location.href);
+                  toast("Đã chia sẻ liên kết xe");
+                } catch (error) {
+                  if (error.name !== "AbortError")
+                    toast("Không thể chia sẻ liên kết lúc này");
+                }
+              }}
+            >
+              <Share2 size={18} /> Chia sẻ
+            </button>
+          </div>
+        </div>
+        <div className="mx-auto max-w-7xl">
+          <div className="h-[260px] overflow-clip rounded-[3px] bg-[#ddd] sm:h-[500px]">
+            <img
+              src={photoSrc}
+              alt={`${car.name} - ảnh ${Math.min(photo, photos.length - 1) + 1}`}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          {photos.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto px-4 pt-3 sm:px-6 lg:px-8">
+              {photos.map((src, i) => (
+                <button
+                  type="button"
+                  key={src + i}
+                  onClick={() => setPhoto(i)}
+                  aria-label={`Xem ảnh ${i + 1}`}
+                  aria-pressed={i === photo}
+                  className={`h-16 w-24 shrink-0 overflow-hidden rounded-[2px] border-[0.8px] ${i === photo ? "border-pace-blue ring-2 ring-pace-blue/30" : "border-pace-line"}`}
+                >
+                  <img src={src} alt="" className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+          {car.imageSourceUrl && (
+            <p className="px-4 pt-2 text-right text-[10px] text-pace-hint sm:px-6 lg:px-8">
+              Ảnh minh họa:{" "}
+              <a
+                href={car.imageSourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold underline underline-offset-2 hover:text-pace-blue"
+              >
+                {car.imageCredit || "Nguồn ảnh"}
+              </a>
+            </p>
+          )}
+          <div className="h-3" />
         </div>
       </div>
-      <div
-        className={`grid gap-3 ${photos.length > 1 ? "md:grid-cols-4" : ""}`}
-      >
-        <img
-          src={photos[0]}
-          alt={`${car.name} - ảnh chính`}
-          className={`h-[430px] w-full rounded-2xl object-cover ${photos.length > 1 ? "md:col-span-3" : ""}`}
-        />
-        {photos.length > 1 && (
-          <div className="grid grid-rows-2 gap-3">
-            {photos.slice(1, 3).map((src, i) => (
-              <div className="relative overflow-hidden rounded-2xl" key={i}>
-                <img
-                  src={src}
-                  alt={`${car.name} - ảnh ${i + 2}`}
-                  className="h-full w-full object-cover"
-                />
-                {i === Math.min(1, photos.length - 2) && (
-                  <span className="absolute inset-0 grid place-items-center bg-slate-950/50 font-bold text-white">
-                    <Camera className="mr-2 inline" /> {photos.length} ảnh
+      {/* details + booking card (Figma 2:3155) */}
+      <section className="-mb-20 bg-[#f0f1f3] pb-[192px] pt-6 lg:pb-[112px]">
+        <div className="container-app grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+          <div className="flex min-w-0 flex-col gap-5">
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+                  <h1 className="font-display text-[32px] font-extrabold uppercase leading-[34px] tracking-[-1.15px] text-pace-ink sm:text-[46px] sm:leading-[46px]">
+                    {car.name}
+                  </h1>
+                  {car.verified && (
+                    <span className="pb-1 text-[11px] font-extrabold uppercase leading-[23px] text-[#0aa36e]">
+                      ✓ Đã xác thực
+                    </span>
+                  )}
+                  {car.instantBooking && (
+                    <span className="pb-1 text-[11px] font-extrabold uppercase leading-[23px] text-pace-blue">
+                      <Zap size={12} className="mb-0.5 inline" /> Đặt nhanh
+                    </span>
+                  )}
+                </div>
+                <p className="flex items-start gap-[5px] text-sm leading-[21px] text-pace-muted">
+                  <MapPin size={17} className="mt-0.5 shrink-0" aria-hidden="true" />
+                  <span>
+                    Khu vực nhận xe: {car.location}
+                    {car.handoverPoint && (
+                      <> · Điểm hẹn mặc định: {car.handoverPoint}</>
+                    )}{" "}
+                    · {car.totalTrips} chuyến
+                  </span>
+                </p>
+              </div>
+              <div className={`grid grid-cols-2 p-6 sm:grid-cols-4 ${card}`}>
+                {[
+                  [Users, `${car.seats} chỗ`],
+                  [Gauge, car.transmission],
+                  [Fuel, car.fuel],
+                  [CalendarDays, car.year],
+                ].map(([Icon, text], i) => (
+                  <div
+                    className={`flex flex-col items-center justify-center gap-[9px] py-2 ${i > 0 ? "sm:border-l sm:border-pace-line" : ""}`}
+                    key={text}
+                  >
+                    <Icon size={20} className="text-pace-blue" aria-hidden="true" />
+                    <b className="text-sm font-bold leading-[21px] text-pace-ink">
+                      {text}
+                    </b>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <h2 className={h2}>Mô tả xe</h2>
+                <p className="text-sm leading-[23.1px] text-pace-muted">
+                  {car.description}
+                </p>
+                {!!car.amenities?.length && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {car.amenities.map((item) => (
+                      <span
+                        className={`px-3 py-2 text-xs leading-[18px] text-pace-ink ${card}`}
+                        key={item}
+                      >
+                        ✓ {item}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col gap-3">
+                <h2 className={h2}>Chủ xe &amp; mức độ tin cậy</h2>
+                <div
+                  className={`flex flex-wrap items-center gap-3 px-5 py-4 ${card}`}
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-[13px]">
+                    <div className="grid size-[46px] shrink-0 place-items-center rounded-full bg-[#e7efff] text-lg leading-[27px] text-pace-blue">
+                      {car.owner?.name?.[0]}
+                    </div>
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <p className="truncate text-sm font-bold leading-[21px] text-pace-ink">
+                        {car.owner?.name}
+                      </p>
+                      <p className="text-xs leading-[16.8px] text-pace-muted">
+                        {car.owner?.verified
+                          ? "Chủ xe đã xác thực"
+                          : "Chủ xe chưa hoàn tất xác thực"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`${pill} ${trustTone}`}>
+                    {hasTrust
+                      ? `✓ Trust ${Number(trustValue)}`
+                      : "Trust chưa có dữ liệu"}
+                  </span>
+                  <span className={`${pill} ${riskTone}`}>{riskLevel} Risk</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <h2 className={h2}>Quy định và phụ phí</h2>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {[
+                  `Giới hạn ${car.rules?.mileageLimit || 300} km/ngày`,
+                  `Trả muộn ${money(car.rules?.lateFeePerHour || 120000)}/giờ`,
+                  car.rules?.noSmoking ? "Không hút thuốc" : "Cho phép hút thuốc",
+                  `Cọc hoàn lại ${money(car.deposit)}`,
+                  "Nhiên liệu: giao đầy – trả đầy, không gồm trong giá thuê",
+                  `Bàn giao ${HANDOVER_POLICY.supportedFrom}–${HANDOVER_POLICY.supportedUntil}`,
+                ].map((item) => (
+                  <div
+                    className={`flex min-h-[48px] items-center p-[15px] text-xs leading-[18px] text-pace-ink ${card}`}
+                    key={item}
+                  >
+                    ✓ {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <div className="flex min-h-[49.5px] items-center justify-between gap-3">
+                <h2 className={h2}>Đánh giá chuyến đi</h2>
+                {!!reviews?.length && (
+                  <span className="text-xs leading-[16.5px] text-[#edaa00]">
+                    ★ {car.rating} · {reviews.length} đánh giá
                   </span>
                 )}
               </div>
-            ))}
+              <div className="flex flex-col gap-3">
+                {reviews?.length ? (
+                  reviews.map((review) => (
+                    <div className={`flex flex-col gap-1 p-[22px] ${card}`} key={review.id}>
+                      <p className="text-sm font-bold leading-[21px] tracking-[2px] text-[#f0aa00]">
+                        {"★".repeat(review.rating)}
+                      </p>
+                      <p className="text-sm leading-[21px] text-pace-ink">
+                        {review.comment}
+                      </p>
+                      <p className="text-xs leading-[16.8px] text-pace-muted">
+                        {review.renter?.name} · Chuyến đi đã xác thực
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className={card}>
+                    <EmptyState title="Chưa có đánh giá" />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-      {car.imageSourceUrl && (
-        <p className="mt-2 text-right text-xs text-slate-400">
-          Ảnh minh họa:{" "}
-          <a
-            href={car.imageSourceUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="font-semibold underline decoration-slate-300 underline-offset-2 hover:text-brand-600"
-          >
-            {car.imageCredit || "Nguồn ảnh"}
-          </a>
-        </p>
-      )}
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
-        <div className="min-w-0 space-y-7">
-          <section>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-extrabold">{car.name}</h1>
-              {car.verified && <VerifiedBadge />}
-              {car.instantBooking && (
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
-                  <Zap size={13} className="inline" /> Đặt nhanh
-                </span>
-              )}
-            </div>
-            <p className="mt-2 text-slate-500">
-              <MapPin className="inline" size={16} /> Khu vực nhận xe:{" "}
-              {car.location}
-              {car.handoverPoint && (
-                <> · Điểm hẹn mặc định: {car.handoverPoint}</>
-              )}{" "}
-              · {car.totalTrips} chuyến
-            </p>
-          </section>
-          <section className="card grid grid-cols-2 gap-4 p-5 sm:grid-cols-4">
-            {[
-              [Users, `${car.seats} chỗ`],
-              [Gauge, car.transmission],
-              [Fuel, car.fuel],
-              [CalendarDays, car.year],
-            ].map(([Icon, text]) => (
-              <div key={text}>
-                <Icon className="mb-2 text-brand-600" />
-                <b>{text}</b>
-              </div>
-            ))}
-          </section>
-          <section>
-            <h2 className="text-xl font-bold">Mô tả xe</h2>
-            <p className="mt-3 leading-7 text-slate-600">{car.description}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {car.amenities?.map((item) => (
-                <span
-                  className="rounded-full bg-white px-3 py-2 text-sm"
-                  key={item}
-                >
-                  ✓ {item}
-                </span>
-              ))}
-            </div>
-          </section>
-          <section className="card p-6">
-            <h2 className="text-xl font-bold">Chủ xe & mức độ tin cậy</h2>
-            <div className="mt-4 flex flex-wrap items-center gap-4">
-              <div className="grid h-14 w-14 place-items-center rounded-full bg-brand-100 text-xl font-bold text-brand-700">
-                {car.owner?.name?.[0]}
-              </div>
-              <div>
-                <b>{car.owner?.name}</b>
-                <p className="mt-1 text-xs text-slate-500">
-                  {car.owner?.verified
-                    ? "Chủ xe đã xác thực"
-                    : "Chủ xe chưa hoàn tất xác thực"}
+          <aside>
+            <div
+              id="booking-panel"
+              className="flex flex-col gap-3 rounded-[3px] border-t-[4.8px] border-solid border-[#5f98ff] bg-white p-6 lg:sticky lg:top-[74px]"
+            >
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between gap-3">
+                  <p>
+                    <span className="font-display text-[30px] font-bold leading-[33px] text-pace-blue">
+                      {money(car.pricePerDay)}
+                    </span>
+                    <span className="text-base text-pace-muted">/ngày</span>
+                  </p>
+                  {car.deliveryOptions?.ownerDelivery && (
+                    <span className="text-[10px] font-bold leading-[15px] text-[#0aa36e]">
+                      <Truck size={13} className="mr-1 inline" aria-hidden="true" />
+                      Có giao xe
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs leading-[15px] text-pace-muted">
+                  Giá thuê do chủ xe niêm yết. Phí nền tảng, bảo hiểm, giao xe và
+                  phụ phí ngoài giờ chỉ được cộng sau khi bạn chọn lịch và đều hiển
+                  thị riêng trong báo giá.
                 </p>
               </div>
-              <div className="ml-auto flex gap-2">
-                <TrustScoreBadge score={car.owner?.trustScore} />
-                <RiskBadge level={car.owner?.riskLevel} />
-              </div>
-            </div>
-          </section>
-          <section>
-            <h2 className="text-xl font-bold">Quy định và phụ phí</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {[
-                `Giới hạn ${car.rules?.mileageLimit || 300} km/ngày`,
-                `Trả muộn ${money(car.rules?.lateFeePerHour || 120000)}/giờ`,
-                car.rules?.noSmoking ? "Không hút thuốc" : "Cho phép hút thuốc",
-                `Cọc hoàn lại ${money(car.deposit)}`,
-                "Nhiên liệu: giao đầy – trả đầy, không gồm trong giá thuê",
-                `Bàn giao ${HANDOVER_POLICY.supportedFrom}–${HANDOVER_POLICY.supportedUntil}`,
-              ].map((item) => (
-                <div className="rounded-xl bg-white p-4 text-sm" key={item}>
-                  ✓ {item}
-                </div>
-              ))}
-            </div>
-          </section>
-          <section>
-            <div className="flex items-end justify-between">
-              <h2 className="text-xl font-bold">Đánh giá chuyến đi</h2>
-              {!!reviews?.length && (
-                <span className="text-sm font-bold text-amber-500">
-                  ★ {car.rating} · {reviews.length} đánh giá
-                </span>
-              )}
-            </div>
-            <div className="mt-4 space-y-3">
-              {reviews?.length ? (
-                reviews.map((review) => (
-                  <div className="card p-5" key={review.id}>
-                    <p className="text-amber-400">
-                      {"★".repeat(review.rating)}
-                    </p>
-                    <p className="mt-2">{review.comment}</p>
-                    <p className="mt-2 text-xs text-slate-500">
-                      {review.renter?.name} · Chuyến đi đã xác thực
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div className="card">
-                  <EmptyState title="Chưa có đánh giá" />
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
-        <aside>
-          <div id="booking-panel" className="card sticky top-24 p-6">
-            <div className="flex items-end justify-between">
-              <p>
-                <b className="text-2xl text-brand-600">
-                  {money(car.pricePerDay)}
-                </b>
-                <span className="text-sm text-slate-500">/ngày</span>
-              </p>
-              {car.deliveryOptions?.ownerDelivery && (
-                <span className="text-xs font-bold text-emerald-600">
-                  <Truck size={14} className="inline" /> Có giao xe
-                </span>
-              )}
-            </div>
-            <p className="mt-2 text-xs leading-5 text-slate-500">
-              Giá thuê do chủ xe niêm yết. Phí nền tảng, bảo hiểm, giao xe và
-              phụ phí ngoài giờ chỉ được cộng sau khi bạn chọn lịch và đều hiển
-              thị riêng trong báo giá.
-            </p>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <Field label="Nhận xe">
-                <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-[7px]">
+                <div className="flex flex-col gap-2">
+                  <label className={fieldLabel} htmlFor="detail-start-date">
+                    Nhận xe
+                  </label>
                   <input
+                    id="detail-start-date"
                     aria-label="Ngày nhận xe"
                     type="date"
                     min={today}
-                    className="input px-3"
+                    className={fieldInput}
                     value={startDate}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -1679,164 +1677,174 @@ export function CarDetail() {
                   <input
                     aria-label="Giờ nhận xe"
                     type="time"
-                    className="input px-3"
+                    className={fieldInput}
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
                   />
                 </div>
-              </Field>
-              <Field label="Trả xe">
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
+                  <label className={fieldLabel} htmlFor="detail-end-date">
+                    Trả xe
+                  </label>
                   <input
+                    id="detail-end-date"
                     aria-label="Ngày trả xe"
                     type="date"
                     min={startDate || tomorrow}
-                    className="input px-3"
+                    className={fieldInput}
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                   />
                   <input
                     aria-label="Giờ trả xe"
                     type="time"
-                    className="input px-3"
+                    className={fieldInput}
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                   />
                 </div>
-              </Field>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setPickupOption("pickup")}
-                className={`rounded-xl border p-3 text-sm font-bold ${pickupOption === "pickup" ? "border-brand-500 bg-brand-50 text-brand-700" : ""}`}
-              >
-                Tự nhận xe
-              </button>
-              <button
-                disabled={!car.deliveryOptions?.ownerDelivery}
-                onClick={() => setPickupOption("delivery")}
-                className={`rounded-xl border p-3 text-sm font-bold disabled:opacity-40 ${pickupOption === "delivery" ? "border-brand-500 bg-brand-50 text-brand-700" : ""}`}
-              >
-                Giao tận nơi
-              </button>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <input
-                className="input"
-                value={promo}
-                onChange={(e) => setPromo(e.target.value.toUpperCase())}
-                placeholder="Mã ưu đãi"
-              />
-              <Button
-                variant="secondary"
-                onClick={() => requestQuote(promo, true)}
-              >
-                Áp dụng
-              </Button>
-            </div>
-            {quoting && (
-              <p className="mt-4 text-center text-sm text-slate-400">
-                Đang tính giá tốt nhất...
-              </p>
-            )}
-            {quoteError && (
-              <p className="mt-4 text-sm text-red-600">{quoteError}</p>
-            )}
-            {quote && (
-              <div className="mt-5 space-y-3 rounded-xl bg-slate-50 p-4 text-sm">
-                <PriceLine
-                  label={`${quote.durationLabel || `${quote.days} ngày`} × ${money(quote.pricePerDay)}`}
-                  value={quote.baseRental}
-                />
-                {quote.weekendSurcharge > 0 && (
-                  <PriceLine
-                    label="Phụ phí cuối tuần"
-                    value={quote.weekendSurcharge}
-                  />
-                )}{" "}
-                {quote.longRentalDiscount > 0 && (
-                  <PriceLine
-                    discount
-                    label="Giảm thuê dài ngày"
-                    value={quote.longRentalDiscount}
-                  />
-                )}
-                <PriceLine
-                  label="Bảo hiểm chuyến đi"
-                  value={quote.insuranceFee}
-                />
-                {quote.driverFee > 0 && (
-                  <PriceLine label="Phí tài xế" value={quote.driverFee} />
-                )}
-                <PriceLine label="Phí nền tảng" value={quote.platformFee} />
-                {quote.outsideHoursFee > 0 && (
-                  <PriceLine
-                    label="Phụ phí bàn giao ngoài giờ"
-                    value={quote.outsideHoursFee}
-                  />
-                )}
-                {quote.deliveryFee > 0 && (
-                  <PriceLine label="Giao nhận xe" value={quote.deliveryFee} />
-                )}{" "}
-                {quote.promoDiscount > 0 && (
-                  <PriceLine
-                    discount
-                    label={`Ưu đãi ${quote.appliedPromotion?.code}`}
-                    value={quote.promoDiscount}
-                  />
-                )}
-                <div className="flex justify-between border-t pt-3 text-base">
-                  <b>Tổng phí thuê</b>
-                  <b className="text-brand-600">{money(quote.totalPrice)}</b>
-                </div>
-                <div className="flex justify-between text-xs text-slate-500">
-                  <span>Tiền cọc hoàn lại · chưa thanh toán ở bước này</span>
-                  <b>{money(quote.deposit)}</b>
-                </div>
               </div>
-            )}
-            {quote ? (
-              <Button
-                as={Link}
-                to={`/booking/${car.id}?quoteId=${quote.quoteId}`}
-                className="mt-5 w-full"
-              >
-                Tiếp tục đặt xe <ArrowRight size={17} />
-              </Button>
-            ) : (
-              <Button disabled className="mt-5 w-full">
-                Chọn lịch để xem giá
-              </Button>
-            )}
-            <p className="mt-3 text-center text-[11px] text-slate-400">
-              Báo giá có hiệu lực 15 phút · Policy {quote?.policyVersion}
-            </p>
-          </div>
-        </aside>
-      </div>
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 p-3 shadow-2xl backdrop-blur lg:hidden">
+              <div className="grid grid-cols-2 gap-[7px]">
+                {[
+                  ["pickup", "Tự nhận xe", false],
+                  ["delivery", "Giao tận nơi", !car.deliveryOptions?.ownerDelivery],
+                ].map(([value, label, disabled]) => (
+                  <button
+                    type="button"
+                    key={value}
+                    disabled={disabled}
+                    aria-pressed={pickupOption === value}
+                    onClick={() => setPickupOption(value)}
+                    className={`h-[38px] rounded-[2px] border-[0.8px] bg-white text-sm font-bold leading-[21px] transition disabled:cursor-not-allowed disabled:opacity-40 ${pickupOption === value ? "border-pace-blue text-pace-blue" : "border-pace-line text-pace-ink hover:border-pace-blue/50"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-1.5">
+                <input
+                  aria-label="Mã ưu đãi"
+                  className="h-[42.6px] min-w-0 flex-1 rounded-[2px] border-[0.8px] border-pace-line bg-white p-[10px] text-sm text-pace-ink outline-none transition placeholder:text-pace-ink/50 focus:border-pace-blue focus:ring-4 focus:ring-pace-blue/20"
+                  value={promo}
+                  onChange={(e) => setPromo(e.target.value.toUpperCase())}
+                  placeholder="Mã ưu đãi"
+                />
+                <button
+                  type="button"
+                  onClick={() => requestQuote(promo, true)}
+                  className="w-[70px] shrink-0 rounded-[2px] bg-[#eff3ff] text-sm font-bold leading-[21px] text-pace-blue transition hover:bg-pace-blue hover:text-white"
+                >
+                  Áp dụng
+                </button>
+              </div>
+              {quoting && (
+                <p className="text-center text-xs text-pace-hint">
+                  Đang tính giá tốt nhất...
+                </p>
+              )}
+              {quoteError && (
+                <p className="text-xs leading-[21px] text-pace-err" role="alert">
+                  {quoteError}
+                </p>
+              )}
+              {quote && (
+                <div className="flex flex-col rounded-lg bg-[#fbfcff] p-3">
+                  <QuoteRow
+                    label={`${quote.durationLabel || `${quote.days} ngày`} × ${money(quote.pricePerDay)}`}
+                    value={quote.baseRental}
+                  />
+                  {quote.weekendSurcharge > 0 && (
+                    <QuoteRow
+                      label="Phụ phí cuối tuần"
+                      value={quote.weekendSurcharge}
+                    />
+                  )}
+                  {quote.longRentalDiscount > 0 && (
+                    <QuoteRow
+                      discount
+                      label="Giảm thuê dài ngày"
+                      value={quote.longRentalDiscount}
+                    />
+                  )}
+                  <QuoteRow label="Bảo hiểm chuyến đi" value={quote.insuranceFee} />
+                  {quote.driverFee > 0 && (
+                    <QuoteRow label="Phí tài xế" value={quote.driverFee} />
+                  )}
+                  <QuoteRow label="Phí nền tảng" value={quote.platformFee} />
+                  {quote.outsideHoursFee > 0 && (
+                    <QuoteRow
+                      label="Phụ phí bàn giao ngoài giờ"
+                      value={quote.outsideHoursFee}
+                    />
+                  )}
+                  {quote.deliveryFee > 0 && (
+                    <QuoteRow label="Giao nhận xe" value={quote.deliveryFee} />
+                  )}
+                  {quote.promoDiscount > 0 && (
+                    <QuoteRow
+                      discount
+                      label={`Ưu đãi ${quote.appliedPromotion?.code}`}
+                      value={quote.promoDiscount}
+                    />
+                  )}
+                  <div className="flex items-start justify-between gap-3 py-2 text-xs font-extrabold leading-[16.5px] text-pace-ink">
+                    <span>Tổng phí thuê</span>
+                    <span className="font-black text-pace-blue">
+                      {money(quote.totalPrice)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 text-[11px] leading-4 text-pace-muted">
+                    <span>Tiền cọc hoàn lại · chưa thanh toán ở bước này</span>
+                    <b className="shrink-0">{money(quote.deposit)}</b>
+                  </div>
+                </div>
+              )}
+              {quote ? (
+                <Link
+                  to={`/booking/${car.id}?quoteId=${quote.quoteId}`}
+                  className={`${primaryButton} w-full`}
+                >
+                  Tiếp tục đặt xe <ArrowRight size={18} />
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className={`${primaryButton} w-full cursor-not-allowed !bg-pace-pale hover:!border-transparent hover:!text-white`}
+                >
+                  Chọn lịch để xem giá
+                </button>
+              )}
+              <p className="pt-2 text-center text-[10px] leading-3 text-pace-hint">
+                Báo giá có hiệu lực 15 phút · Policy {quote?.policyVersion}
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-pace-line bg-white/95 p-3 shadow-2xl backdrop-blur lg:hidden">
         <div className="container-app flex items-center justify-between gap-3 px-0">
           <div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-pace-muted">
               {quote
                 ? `Tổng ${quote.durationLabel || `${quote.days} ngày`}`
                 : "Chọn lịch để báo giá"}
             </p>
-            <b className="text-lg text-brand-600">
-              {quote
-                ? money(quote.totalPrice)
-                : money(car.pricePerDay) + "/ngày"}
+            <b className="font-display text-xl font-bold text-pace-blue">
+              {quote ? money(quote.totalPrice) : money(car.pricePerDay) + "/ngày"}
             </b>
           </div>
           {quote ? (
-            <Button
-              as={Link}
+            <Link
               to={`/booking/${car.id}?quoteId=${quote.quoteId}`}
+              className={primaryButton}
             >
               Tiếp tục đặt xe
-            </Button>
+            </Link>
           ) : (
-            <Button
+            <button
+              type="button"
+              className={primaryButton}
               onClick={() =>
                 document
                   .getElementById("booking-panel")
@@ -1844,10 +1852,21 @@ export function CarDetail() {
               }
             >
               Chọn lịch
-            </Button>
+            </button>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+function QuoteRow({ label, value, discount = false }) {
+  return (
+    <div className="flex items-start justify-between gap-3 pt-2 text-xs leading-[16.5px] text-pace-ink">
+      <span>{label}</span>
+      <b className={`shrink-0 ${discount ? "text-[#0aa36e]" : ""}`}>
+        {discount ? "-" : ""}
+        {money(value)}
+      </b>
     </div>
   );
 }

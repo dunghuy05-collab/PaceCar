@@ -9,6 +9,8 @@ Newest first. Every change to the Figma redesign work is recorded here and in th
 
 | Date | Change |
 |---|---|
+| 2026-10-15 | Car detail page (`CarDetail`, Figma 2:1226, content frame 2:3133): top bar, single photo with thumbnails, spec card, owner trust card, rules grid, reviews and the booking/price card. Quote, favorite, share and booking logic unchanged. |
+| 2026-10-15 | Repaired `Cars` after the merge with `main`: the conflict resolution had put the old filter dropdowns and old light card markup back inside the new Figma layout. Restored the Figma filters and `FeaturedCarCard` list cards and kept main's `Pickup` / `Van` / `8 chỗ` options and its "Tiền thuê tạm tính" estimate wording. |
 | 2026-10-14 | Car list page (`Cars`, Figma 2:572): new hero strip, filters, car grid and pagination. Search panel is now shared by Home and the car list. `FeaturedCarCard` gained `to`, `days`, `total` and `badges` props. |
 | 2026-10-14 | Home page (Figma 2:2) and button hover/error states from the Figma button frames. |
 | 2026-10-13 | Login, Register, dark Header and Footer, design tokens, fonts and logo. |
@@ -26,6 +28,7 @@ search, favorites, API calls) is unchanged.
 | Register page | 2:3773 | `Register` in `client/src/pages.jsx` |
 | Home page | 2:2 | `Landing` in `client/src/pages.jsx` |
 | Car list (Danh sách xe) | 2:572 | `Cars` in `client/src/pages.jsx` |
+| Car detail (Chi tiết Xe) | 2:1226 (content 2:3133) | `CarDetail` in `client/src/pages.jsx` |
 | Header / Footer | 30:29 / 30:151 (also inside the frames above) | `Navbar`, `Footer` in `client/src/components/UI.jsx` |
 | Button hover/error states | 30:2002, 30:339, 30:33, 30:101, 30:188 | Login, Register, Navbar, Footer classes |
 
@@ -33,7 +36,7 @@ search, favorites, API calls) is unchanged.
 
 | File | Change |
 |---|---|
-| `client/src/pages.jsx` | `Login`, `Register`, `Landing` and `Cars` rebuilt; new helpers `FilterGroup`, `FilterSelect`, `pagerButton`; new imports (`LogoMark`, `FeaturedCarCard`, `ChevronDown`); `KeyRound` import removed |
+| `client/src/pages.jsx` | `Login`, `Register`, `Landing`, `Cars` and `CarDetail` rebuilt; new helpers `FilterGroup`, `FilterSelect`, `pagerButton`, `QuoteRow`; new imports (`LogoMark`, `FeaturedCarCard`, `ChevronDown`); `KeyRound` import removed |
 | `client/src/components/UI.jsx` | `Navbar` and `Footer` rewritten (dark); notification bell/panel colors fixed for the dark header; imports `PaceLogo` |
 | `client/src/components/SearchBar.jsx` | Both variants (Home and the compact one on `/cars`) now render the Figma search panel; only the shadow differs. Search logic is unchanged |
 | `client/src/components/LogoMark.jsx` | **New.** `LogoMark` (sizeable "P" mark) and `PaceLogo` (mark + PACECAR wordmark + tagline) |
@@ -95,7 +98,23 @@ the site still uses Be Vietnam Pro.
   - On screens below 1024px the filter card collapses behind a "Bộ lọc" button, as before.
   - The error state (when a search fails) still uses the old simple layout under the new search
     panel; it was not in the Figma frame.
-- **Layout:** `Login`, `Register` and the `/cars` results section use `-mb-20` to sit flush against the footer
+- **Car detail (`/cars/:id`):** data, quote requests (`/quotes`), promo codes, favorite, share,
+  the mobile sticky price bar and the link to `/booking/:id?quoteId=...` are unchanged. New look:
+  white top bar with "← Quay lại" / Yêu thích / Chia sẻ, one large photo, grey content area, spec
+  card, description, owner and trust card, rules grid, reviews, and the booking card with the blue
+  top edge. Details:
+  - Below 1024px the layout is one column like the Figma frame (booking card at the bottom). From
+    1024px the booking card moves to a sticky column on the right, as before.
+  - The Figma frame shows one photo. When a car has more photos, small thumbnails under the photo
+    switch the main image, and the photo credit line is kept.
+  - The Figma sample text (price, dates, 3 ngày, review text) is replaced by real car and quote data.
+  - The trust and risk pills keep their color logic (green / amber / red by score and level) in the
+    Figma pill style. The "Đặt nhanh" badge is kept next to the verified mark.
+  - The extra amenity chips, the weekend / driver / outside-hours / delivery quote lines and the
+    deposit note are kept although the frame omits them, so the full price breakdown stays visible.
+  - The fuel rule keeps main's longer wording ("không gồm trong giá thuê").
+  - Icons are lucide icons, not the exact Figma icons.
+- **Layout:** `Login`, `Register`, `/cars` and `/cars/:id` content sections use `-mb-20` to sit flush against the footer
   (the footer keeps its `mt-20` for all other pages).
 - **Hover states (from Figma button frames):** header CTA turns white with blue text; form
   buttons turn light grey-blue with a blue border and text; header text links and footer links
@@ -112,19 +131,20 @@ These were exported from Figma, not generated. Make sure they are added in the c
 | `footer-swoosh-right.svg`, `footer-swoosh-left.svg` | Footer |
 | `home-hero` (jpg) | Home hero |
 | `home-promo-1`, `home-promo-2` (jpg) | Home promo cards |
-| `home-dest-hadong`, `-caugiay`, `-mydinh`, `-hoalac` (jpg) | Home destinations |
+| `home-dest-hadong`, `-caugiay`, `-mydinh`, `-hoalac` (png) | Home destinations |
 | `home-swoosh-benefits.svg`, `home-swoosh-steps.svg` | Home decorative swooshes |
 | `search-hero` (jpg) | Photo behind the search panel on `/cars` (Figma image `16f3a.png`) |
 
-Extensions must match the references in `pages.jsx` (the Home images are referenced as `.jpg`
-in the updated code; confirm they match your files). Missing images fail silently (dark
+Extensions must match the references in `pages.jsx` (in the repo: hero and promo images are `.jpg`,
+destination images are `.png`). The car detail page needs no new image files (it shows the car's
+own photos). Missing images fail silently (dark
 background only), so check them in the browser.
 
 ## Not done yet / known gaps
 
 - Pages not yet redesigned still use the light theme under the new dark header/footer:
-  car detail, booking / "Xác minh thuê xe", dashboards, profile and the other pages.
-- Figma "Chi tiết Xe" and "Xác minh thuê xe" frames are next.
+  booking / "Xác minh thuê xe", dashboards, profile and the other pages.
+- The Figma "Xác minh thuê xe" frame (node 12:4419) is next.
 - Heading fallback font is `Impact`, which has no Vietnamese letters, so there is a brief
   mismatched flash while Barlow Condensed loads. Optional fix: set the `display` fallback in
   `tailwind.config.js` to `"Arial Narrow"`.
@@ -144,7 +164,10 @@ background only), so check them in the browser.
 7. `/cars`: open from the Home search and from a destination tile; change each filter and the sort
    and confirm the URL and results update; "Đặt lại" clears filters but keeps dates and location;
    pagination works; heart works; on a phone-width window the "Bộ lọc" button opens the filters.
-8. `npm run build` completes without errors.
+8. `/cars/:id`: open a car from the list (dates carry over), change dates and pickup option and
+   confirm the price lines update, apply a promo code, heart and share work, thumbnails switch the
+   photo, "Tiếp tục đặt xe" opens the booking page, and below 1024px the sticky price bar shows.
+9. `npm run build` completes without errors.
 
 ## Git notes
 
